@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ferrell Collection — Break Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #161a23;
+      --border:    #252b38;
+      --accent:    #e8c74a;
+      --accent2:   #4a8fe8;
+      --text:      #e8eaf0;
+      --muted:     #6b7385;
+      --radius:    6px;
+
+      /* section palette */
+      --base:      #2e9e5a;
+      --auto:      #8b5cf6;
+      --relic:     #d97706;
+      --insert:    #0ea5e9;
+      --rookie:    #ef4444;
+      --vintage:   #a16207;
+      --variation: #ec4899;
+      --other:     #475569;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 60% 40% at 70% 0%, rgba(232,199,74,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 0% 80%, rgba(74,143,232,.05) 0%, transparent 60%);
+    }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 clamp(1rem, 4vw, 3rem);
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      background: rgba(13,15,20,.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: .06em;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .logo span { color: var(--text); }
+    .badge {
+      background: var(--border);
+      border: 1px solid #2e3548;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .08em;
+      padding: .2rem .5rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem clamp(1rem, 4vw, 2rem) 4rem;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      letter-spacing: .04em;
+      line-height: 1;
+      margin-bottom: .4rem;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: .92rem;
+      margin-bottom: 2.2rem;
+    }
+
+    /* ── SEARCH CARD ── */
+    .search-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
+
+    label {
+      display: block;
+      font-size: .75rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .4rem;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem;
+      padding: .6rem .8rem;
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color .18s;
+      -webkit-appearance: none;
+    }
+    select { cursor: pointer; }
+    select:focus, input[type="text"]:focus { border-color: var(--accent); }
+    select option { background: #1a1e2a; }
+
+    .search-row {
+      display: flex;
+      gap: .8rem;
+      align-items: flex-end;
+    }
+    .search-row > div { flex: 1; }
+
+    .btn {
+      background: var(--accent);
+      color: #0d0f14;
+      border: none;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: .08em;
+      padding: .65rem 1.6rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .15s, transform .1s;
+      flex-shrink: 0;
+      height: 42px;
+    }
+    .btn:hover { opacity: .88; }
+    .btn:active { transform: scale(.97); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .btn-clear {
+      background: var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .65rem 1rem;
+      height: 42px;
+    }
+
+    /* toggle */
+    .mode-toggle {
+      display: flex;
+      gap: .4rem;
+      margin-bottom: 1rem;
+    }
+    .mode-btn {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .45rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .mode-btn.active {
+      background: var(--surface);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* section filter chips */
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin-top: .8rem;
+      padding-top: .8rem;
+      border-top: 1px solid var(--border);
+    }
+    .chip {
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: .2rem .6rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--muted);
+      background: var(--bg);
+    }
+    .chip.active {
+      color: #0d0f14;
+      border-color: transparent;
+    }
+
+    /* ── STATUS ── */
+    #status {
+      text-align: center;
+      color: var(--muted);
+      font-size: .88rem;
+      padding: 2rem 0;
+      display: none;
+    }
+    #status.visible { display: block; }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: .5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESULTS ── */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      gap: .8rem;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap;
+    }
+    .results-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: .04em;
+    }
+    .results-count {
+      font-family: 'DM Mono', monospace;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    /* section group */
+    .section-group {
+      margin-bottom: 1.4rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .65rem 1rem;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .section-name {
+      font-family: 'DM Mono', monospace;
+      font-size: .78rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      flex: 1;
+    }
+    .section-count {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+    }
+    .section-chevron {
+      color: var(--muted);
+      font-size: .75rem;
+      transition: transform .2s;
+    }
+    .section-group.collapsed .section-chevron { transform: rotate(-90deg); }
+    .section-group.collapsed .cards-list { display: none; }
+
+    .cards-list { padding: .4rem 0; }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: 3.5rem 1fr auto auto;
+      align-items: center;
+      gap: .6rem 1rem;
+      padding: .45rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: .88rem;
+      transition: background .12s;
+    }
+    .card-row:last-child { border-bottom: none; }
+    .card-row:hover { background: rgba(255,255,255,.025); }
+    @media (max-width: 560px) {
+      .card-row { grid-template-columns: 2.8rem 1fr auto; }
+      .card-team-col { display: none; }
+    }
+
+    .card-num {
+      font-family: 'DM Mono', monospace;
+      font-size: .78rem;
+      color: var(--muted);
+      text-align: right;
+    }
+    .card-player { font-weight: 500; }
+    .card-team { color: var(--muted); font-size: .82rem; }
+    .spec-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: .62rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: .15rem .45rem;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    /* empty state */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: .8rem; }
+    .empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: .04em; margin-bottom: .4rem; color: var(--text); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: .75rem;
+      font-family: 'DM Mono', monospace;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Ferrell <span>Collection</span></div>
+  <div class="badge">Break Checker</div>
+</header>
+
+<main>
+  <h1>Find Your <em>Slot</em></h1>
+  <p class="subtitle">Search any set by team or player — see every card in your break slot.</p>
+
+  <div class="search-card">
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeTeam" onclick="setMode('team')">⚾ By Team</button>
+      <button class="mode-btn" id="modePlayer" onclick="setMode('player')">👤 By Player</button>
+    </div>
+
+    <div class="field-row">
+      <div>
+        <label for="setSelect">Set</label>
+        <select id="setSelect">
+          <option value="">Loading sets…</option>
+        </select>
+      </div>
+      <div id="sectionFilterWrap" style="display:none">
+        <label for="sectionFilter">Section filter</label>
+        <select id="sectionFilter">
+          <option value="">All Sections</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="search-row">
+      <div>
+        <label for="searchInput" id="searchLabel">Team Name</label>
+        <input type="text" id="searchInput" placeholder="e.g. Yankees" autocomplete="off" />
+      </div>
+      <button class="btn" id="searchBtn" onclick="doSearch()">Search</button>
+      <button class="btn btn-clear" onclick="clearResults()">Clear</button>
+    </div>
+
+  </div>
+
+  <div id="status"></div>
+  <div id="results"></div>
+</main>
+
+<footer>Ferrell Collection · Read-only public break tool · Powered by Supabase</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const SUPABASE_URL  = 'https://rgodsnhfzydtgmsbxwue.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnb2RzbmhmenlkdGdtc2J4d3VlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODg0NDMsImV4cCI6MjA5NDM2NDQ0M30.JvXzx28vNc1Qrhvu6Sxqg9vaqnMJgU9SJBEzzD3EY_Q';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── SECTION COLOR MAP ────────────────────────────────────
+const SECTION_COLORS = {
+  'base':      { dot: '#2e9e5a', badge: 'rgba(46,158,90,.18)',  text: '#2e9e5a'  },
+  'auto':      { dot: '#8b5cf6', badge: 'rgba(139,92,246,.18)', text: '#a78bfa'  },
+  'autograph': { dot: '#8b5cf6', badge: 'rgba(139,92,246,.18)', text: '#a78bfa'  },
+  'relic':     { dot: '#d97706', badge: 'rgba(217,119,6,.18)',   text: '#fbbf24'  },
+  'insert':    { dot: '#0ea5e9', badge: 'rgba(14,165,233,.18)',  text: '#38bdf8'  },
+  'insert/':   { dot: '#0ea5e9', badge: 'rgba(14,165,233,.18)',  text: '#38bdf8'  },
+  'rookie':    { dot: '#ef4444', badge: 'rgba(239,68,68,.18)',   text: '#f87171'  },
+  'vintage':   { dot: '#a16207', badge: 'rgba(161,98,7,.18)',    text: '#fde68a'  },
+  'variation': { dot: '#ec4899', badge: 'rgba(236,72,153,.18)',  text: '#f9a8d4'  },
+};
+function sectionColor(section) {
+  const s = (section || '').toLowerCase();
+  for (const [key, val] of Object.entries(SECTION_COLORS)) {
+    if (s.includes(key)) return val;
+  }
+  return { dot: '#475569', badge: 'rgba(71,85,105,.18)', text: '#94a3b8' };
+}
+
+// ── STATE ───────────────────────────────────────────────
+let mode = 'team'; // 'team' | 'player'
+let allSections = [];
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeTeam').classList.toggle('active', m === 'team');
+  document.getElementById('modePlayer').classList.toggle('active', m === 'player');
+  const lbl = document.getElementById('searchLabel');
+  const inp = document.getElementById('searchInput');
+  if (m === 'team') {
+    lbl.textContent = 'Team Name';
+    inp.placeholder = 'e.g. Yankees';
+  } else {
+    lbl.textContent = 'Player Name';
+    inp.placeholder = 'e.g. Aaron Judge';
+  }
+  clearResults();
+}
+
+// ── LOAD SETS ────────────────────────────────────────────
+async function loadSets() {
+  const { data, error } = await db.from('sets').select('id, year, brand, set_name, series').order('year', { ascending: false });
+  const sel = document.getElementById('setSelect');
+  if (error || !data?.length) {
+    sel.innerHTML = '<option value="">Could not load sets</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— Choose a set —</option>' +
+    data.map(s => {
+      const label = [s.year, s.brand, s.set_name, s.series].filter(Boolean).join(' ');
+      return `<option value="${s.id}">${label}</option>`;
+    }).join('');
+  sel.addEventListener('change', onSetChange);
+}
+
+async function onSetChange() {
+  const setId = document.getElementById('setSelect').value;
+  clearResults();
+  allSections = [];
+  const secSel = document.getElementById('sectionFilter');
+  secSel.innerHTML = '<option value="">All Sections</option>';
+  document.getElementById('sectionFilterWrap').style.display = 'none';
+
+  if (!setId) return;
+
+  // Fetch distinct sections for this set
+  const { data } = await db.from('cards').select('section').eq('set_id', setId);
+  if (data?.length) {
+    const unique = [...new Set(data.map(r => r.section).filter(Boolean))].sort();
+    allSections = unique;
+    if (unique.length > 1) {
+      secSel.innerHTML = '<option value="">All Sections</option>' +
+        unique.map(s => `<option value="${s}">${s}</option>`).join('');
+      document.getElementById('sectionFilterWrap').style.display = 'block';
+    }
+  }
+}
+
+// ── SEARCH ──────────────────────────────────────────────
+async function doSearch() {
+  const setId  = document.getElementById('setSelect').value;
+  const query  = document.getElementById('searchInput').value.trim();
+  const secFilter = document.getElementById('sectionFilter').value;
+
+  if (!setId)  { flash('Please choose a set first.'); return; }
+  if (!query)  { flash('Enter a ' + (mode === 'team' ? 'team name' : 'player name') + '.'); return; }
+
+  showStatus('<span class="spinner"></span> Searching…');
+  document.getElementById('results').classList.remove('visible');
+
+  // Fetch all pages (handle >1000 rows)
+  let allCards = [];
+  let from = 0;
+  const PAGE = 1000;
+  while (true) {
+    let q = db.from('cards')
+      .select('card_number, player, team, specialty, section')
+      .eq('set_id', setId)
+      .ilike(mode === 'team' ? 'team' : 'player', `%${query}%`)
+      .order('section')
+      .order('card_number')
+      .range(from, from + PAGE - 1);
+    if (secFilter) q = q.eq('section', secFilter);
+
+    const { data, error } = await q;
+    if (error) { showStatus('Error: ' + error.message); return; }
+    allCards = allCards.concat(data || []);
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+
+  hideStatus();
+  renderResults(allCards, query, secFilter);
+}
+
+// ── RENDER ───────────────────────────────────────────────
+function renderResults(cards, query, secFilter) {
+  const el = document.getElementById('results');
+  if (!cards.length) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No Cards Found</div>
+        <p>No ${mode === 'team' ? 'team' : 'player'} matching <strong>"${escH(query)}"</strong>${secFilter ? ` in section <strong>"${escH(secFilter)}"</strong>` : ''} in the selected set.</p>
+      </div>`;
+    el.classList.add('visible');
+    return;
+  }
+
+  // Group by section
+  const groups = {};
+  for (const c of cards) {
+    const s = c.section || 'Uncategorized';
+    if (!groups[s]) groups[s] = [];
+    groups[s].push(c);
+  }
+
+  const setLabel = document.getElementById('setSelect').selectedOptions[0]?.text || '';
+  const totalLabel = `${cards.length} card${cards.length !== 1 ? 's' : ''}`;
+
+  let html = `
+    <div class="results-header">
+      <div class="results-title">${escH(query)}</div>
+      <div class="results-count">${totalLabel} · ${escH(setLabel)}</div>
+    </div>`;
+
+  for (const [section, rows] of Object.entries(groups)) {
+    const col = sectionColor(section);
+    html += `
+      <div class="section-group" id="sg-${CSS.escape(section)}">
+        <div class="section-header" onclick="toggleGroup(this.parentElement)">
+          <span class="section-dot" style="background:${col.dot}"></span>
+          <span class="section-name">${escH(section)}</span>
+          <span class="section-count">${rows.length} card${rows.length !== 1 ? 's' : ''}</span>
+          <span class="section-chevron">▼</span>
+        </div>
+        <div class="cards-list">`;
+
+    for (const c of rows) {
+      const spec = c.specialty ? `<span class="spec-badge" style="background:${col.badge};color:${col.text}">${escH(c.specialty)}</span>` : '';
+      html += `
+          <div class="card-row">
+            <span class="card-num">#${escH(c.card_number || '—')}</span>
+            <span class="card-player">${escH(c.player || '—')}</span>
+            <span class="card-team card-team-col">${escH(c.team || '')}</span>
+            ${spec}
+          </div>`;
+    }
+
+    html += `</div></div>`;
+  }
+
+  el.innerHTML = html;
+  el.classList.add('visible');
+}
+
+function toggleGroup(el) {
+  el.classList.toggle('collapsed');
+}
+
+// ── UTILS ────────────────────────────────────────────────
+function escH(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showStatus(msg) {
+  const el = document.getElementById('status');
+  el.innerHTML = msg;
+  el.classList.add('visible');
+}
+function hideStatus() {
+  const el = document.getElementById('status');
+  el.classList.remove('visible');
+}
+function clearResults() {
+  hideStatus();
+  const el = document.getElementById('results');
+  el.innerHTML = '';
+  el.classList.remove('visible');
+}
+function flash(msg) {
+  showStatus(msg);
+  setTimeout(hideStatus, 2500);
+}
+
+// Enter key triggers search
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+  loadSets();
+});
+</script>
+</body>
+</html>
