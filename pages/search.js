@@ -105,6 +105,14 @@ const SearchPage = {
       Object.entries(setMap).forEach(function(entry) {
         var setName = entry[0];
         var setCards = entry[1];
+        // Sort owned cards to top
+        setCards.sort(function(a, b) {
+          var aOwned = !!a.collection;
+          var bOwned = !!b.collection;
+          if (aOwned && !bOwned) return -1;
+          if (!aOwned && bOwned) return 1;
+          return 0;
+        });
         html += '<div class="player-set-group">';
         html += '<div class="player-set-name">' + setName + '</div>';
 
@@ -115,7 +123,7 @@ const SearchPage = {
           var cardGraded = card.graded || [];
           var cardWanted = card.wanted || [];
 
-          html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">';
+          html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);' + (isOwned ? 'background:var(--accent-bg);margin:0 -16px;padding-left:16px;padding-right:16px;border-radius:4px;' : '') + '">';
           html += '<div style="flex:1">';
           html += '<span style="font-weight:500">#' + card.card_number + '</span>';
           html += '<span style="margin-left:6px">' + card.player + '</span>';
