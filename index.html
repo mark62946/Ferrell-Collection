@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CardVault — Ferrell Baseball Card Collection</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">⚾</span>
+      <span class="logo-text">Ferrell Collection</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-page="search"><span class="nav-icon">🔍</span> Master Search</a></li>
+      <li><a href="#" class="nav-link" data-page="collection"><span class="nav-icon">📦</span> My Collection</a></li>
+      <li><a href="#" class="nav-link" data-page="sets"><span class="nav-icon">📋</span> Sets & Checklists</a></li>
+      <li><a href="#" class="nav-link" data-page="graded"><span class="nav-icon">🏆</span> Graded Cards</a></li>
+      <li><a href="#" class="nav-link" data-page="wantlist"><span class="nav-icon">⭐</span> Want List</a></li>
+      <li><a href="#" class="nav-link" data-page="misc"><span class="nav-icon">🃏</span> Misc Cards</a></li>
+      <li><a href="#" class="nav-link" data-page="checklist"><span class="nav-icon">✏️</span> Checklist Entry</a></li>
+      <li><a href="#" class="nav-link" data-page="upload"><span class="nav-icon">⬆️</span> Upload Checklist</a></li>
+    </ul>
+    <div class="sidebar-stats" id="sidebar-stats">
+      <div class="ss-item"><span class="ss-val" id="ss-total">—</span><span class="ss-label">Total Cards</span></div>
+      <div class="ss-item"><span class="ss-val" id="ss-sets">—</span><span class="ss-label">Sets</span></div>
+      <div class="ss-item"><span class="ss-val" id="ss-graded">—</span><span class="ss-label">Graded</span></div>
+    </div>
+  </nav>
+
+  <main class="main-content" id="main-content">
+    <div id="page-search" class="page active"></div>
+    <div id="page-collection" class="page"></div>
+    <div id="page-sets" class="page"></div>
+    <div id="page-graded" class="page"></div>
+    <div id="page-wantlist" class="page"></div>
+    <div id="page-misc" class="page"></div>
+    <div id="page-upload" class="page"></div>
+    <div id="page-checklist" class="page"></div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Title</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="parallels.js"></script>
+<script src="db.js"></script>
+<script src="pages/search.js"></script>
+<script src="pages/collection.js"></script>
+<script src="pages/sets.js"></script>
+<script src="pages/graded.js"></script>
+<script src="pages/wantlist.js"></script>
+<script src="pages/misc.js"></script>
+<script src="pages/checklist.js"></script>
+<script src="pages/upload.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
