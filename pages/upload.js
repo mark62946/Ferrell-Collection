@@ -160,6 +160,7 @@ const UploadPage = {
       reader.onload = function(e) {
         try {
           var wb = XLSX.read(e.target.result, { type: 'array' });
+          // Try Full Checklist first (Series 2 format), fall back to Sheet1
           var sheetName = wb.SheetNames.indexOf('Full Checklist') >= 0 ? 'Full Checklist' : wb.SheetNames[0];
           var ws = wb.Sheets[sheetName];
           var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
@@ -169,14 +170,16 @@ const UploadPage = {
           for (var i = 0; i < rows.length; i++) {
             var v0 = String(rows[i][0] || '').trim();
             var v1 = String(rows[i][1] || '').trim();
-            if (v0 && !v1 && !self.isNoise(v0)) {
-              sectionRows[i] = v0;
-            }
+            if (!v0 || v1) continue;
+            // BASE SET maps to Base
+            if (v0.toUpperCase() === 'BASE SET') { sectionRows[i] = 'Base'; continue; }
+            if (!self.isNoise(v0)) { sectionRows[i] = self.titleCase(v0); }
           }
 
           // Second pass: parse cards
           var cards = [];
           var currentSection = 'Base';
+          var sectionSeen = {};
 
           for (var i = 0; i < rows.length; i++) {
             var v0 = String(rows[i][0] || '').trim();
@@ -184,30 +187,55 @@ const UploadPage = {
             var v2 = String(rows[i][2] || '').trim();
             var v3 = String(rows[i][3] || '').trim();
 
-            if (!v0) continue;
+            if (!v0 && !v1) continue;
 
+            // Section header
             if (sectionRows[i] !== undefined) {
               currentSection = sectionRows[i];
               continue;
             }
 
-            if (!v1) continue;
+            // Skip noise rows with no player
+            if (v0 && !v1) continue;
 
-            // Special case: Iconic Topps Buyback Cards
-            if (currentSection === 'Iconic Topps Buyback Cards' && self.isBuybackRow(v0, v1)) {
-              var buyback = self.parseBuybackCard(v0, v1, v2, currentSection);
-              if (buyback) { cards.push(buyback); }
+            // Buyback cards: col A empty or has year, col B has all info
+            if (currentSection === 'Iconic Topps Buyback Cards') {
+              // Series 2 format: col A = "1952 Topps", col B = "Player #num Graded"
+              if (v0 && self.isBuybackRow(v0, v1)) {
+                var bb = self.parseBuybackCard(v0, v1, v2, currentSection);
+                if (bb) cards.push(bb);
+                continue;
+              }
+              // Series 1 format: col A empty, col B = "1983 Topps Player Card #num Team"
+              if (!v0 && v1) {
+                var bb1 = self.parseBuybackS1(v1, v2, currentSection);
+                if (bb1) cards.push(bb1);
+                continue;
+              }
+            }
+
+            // Cards with no number in col A (redemptions etc) — use section prefix
+            if (!v0 && v1 && v1.length > 1) {
+              var secCount = cards.filter(function(c){ return c.section === currentSection; }).length;
+              var prefix = currentSection.replace(/[^A-Z]/gi,'').substring(0,3).toUpperCase();
+              cards.push({
+                section: currentSection,
+                card_number: prefix + (secCount + 1),
+                player: v1.replace(/,$/, '').trim(),
+                team: v2.replace(/,$/, '').trim() || null,
+                specialty: v3.replace(/[()]/g,'').trim() || null
+              });
               continue;
             }
 
-            // Normal card row
-            if (/^[\w][\w\-\/#\.]*$/.test(v0) && v1.length > 1) {
+            // Normal card row: col A = card number, col B = player
+            if (v0 && v1 && /^[\w][\w\-\/#\.]*$/.test(v0) && v1.length > 1) {
               cards.push({
                 section: currentSection,
                 card_number: v0,
                 player: v1.replace(/,$/, '').trim(),
                 team: v2.replace(/,$/, '').trim() || null,
-                specialty: v3.replace(/[()]/g, '').trim() || null
+                specialty: v3.replace(/[()]/g,'').trim() || null
               });
             }
           }
@@ -218,6 +246,32 @@ const UploadPage = {
       reader.onerror = function() { reject(new Error('File read failed')); };
       reader.readAsArrayBuffer(file);
     });
+  },
+
+  titleCase(str) {
+    return str.replace(/\w\S*/g, function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  },
+
+  parseBuybackS1(v1, v2, section) {
+    // Format: "1983 Topps Tony Gwynn Card #482 GSan Diego Padres"
+    var v1c = String(v1 || '').trim();
+    var yearMatch = v1c.match(/^(\d{4})\s+Topps\s+(.+)/i);
+    if (!yearMatch) return null;
+    var year = yearMatch[1];
+    var rest = yearMatch[2].trim();
+    var numMatch = rest.match(/Card\s+#(\w+)/i);
+    var cardNum = numMatch ? year + '-' + numMatch[1] : year + '-?';
+    var playerMatch = rest.match(/^(.+?)\s+Card/i);
+    var player = playerMatch ? playerMatch[1].trim() : rest.substring(0, 25).trim();
+    return {
+      section: section,
+      card_number: cardNum,
+      player: player,
+      team: v2 || null,
+      specialty: year + ' Topps ' + rest.replace(/Card\s+#\w+\s*/i, '').trim()
+    };
   },
 
   loadSheetJS() {
