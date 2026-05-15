@@ -63,16 +63,17 @@ const UploadPage = {
       }
       var sections = [];
       var counts = {};
-      cards.forEach(function(c) {
-        if (!counts[c.section]) { counts[c.section] = 0; sections.push(c.section); }
-        counts[c.section]++;
-      });
+      for (var i = 0; i < cards.length; i++) {
+        var s = cards[i].section;
+        if (!counts[s]) { counts[s] = 0; sections.push(s); }
+        counts[s]++;
+      }
       var html = '<div class="upload-preview">';
       html += '<div style="font-weight:600;margin-bottom:8px">Found ' + cards.length.toLocaleString() + ' cards across ' + sections.length + ' sections</div>';
       html += '<div style="font-size:12px;color:var(--text3);line-height:2">';
-      sections.slice(0, 30).forEach(function(s) {
-        html += '<span style="display:inline-block;margin-right:14px">' + s + ' (' + counts[s] + ')</span>';
-      });
+      for (var i = 0; i < Math.min(sections.length, 30); i++) {
+        html += '<span style="display:inline-block;margin-right:14px">' + sections[i] + ' (' + counts[sections[i]] + ')</span>';
+      }
       if (sections.length > 30) html += '<span style="color:var(--accent)">+ ' + (sections.length - 30) + ' more sections</span>';
       html += '</div></div>';
       document.getElementById('upload-preview').innerHTML = html;
@@ -84,29 +85,29 @@ const UploadPage = {
   },
 
   isNoise(v0) {
+    if (!v0) return true;
+    var v0l = v0.toLowerCase().trim();
     if (/^\d+$/.test(v0)) return true;
     if (/^\d+ (cards?|players?|figures?)/i.test(v0)) return true;
-    var exact = [
-      'hobby/jumbo exclusive','super box exclusive','fanatics box exclusive',
-      'retail exclusive','fanatics fest exclusive','hobby exclusive',
-      'tin exclusive','versions tba','hobby/jumbo silver pack exclusive',
-      'all cards are 1/1 - one card per letter of player\'s last name'
-    ];
-    var contains = [
-      'victus bat','zion case','topps rawlings baseball',
-      'mitchell & ness jerseys','lids hats of your choice',
-      'franklin custom batting'
-    ];
-    var v0l = v0.toLowerCase();
+    var exact = ['*subject to change','base','insert','autograph relic','autograph','relic','base set'];
     if (exact.indexOf(v0l) >= 0) return true;
-    for (var i = 0; i < contains.length; i++) {
-      if (v0l.indexOf(contains[i]) >= 0) return true;
+    var qualWords = ['hobby exclusive','retail exclusive','super box exclusive',
+      'hobby/hobby jumbo only','retail holiday tin exclusive','fanatics box exclusive',
+      'celebration mega box exclusives','hobby/jumbo exclusive','tin exclusive',
+      'versions tba','hobby/jumbo silver pack exclusive',
+      'all cards are 1/1 - one card per letter of player\'s last name'];
+    for (var i = 0; i < qualWords.length; i++) {
+      if (v0l.indexOf(qualWords[i]) >= 0) return true;
+    }
+    var containsNoise = ['victus bat','zion case','topps rawlings baseball',
+      'mitchell & ness jerseys','lids hats of your choice','franklin custom batting'];
+    for (var i = 0; i < containsNoise.length; i++) {
+      if (v0l.indexOf(containsNoise[i]) >= 0) return true;
     }
     return false;
   },
 
   isBuybackRow(v0, v1) {
-    // Buyback rows: col A is "YYYY Topps," and col B has player info
     return /^\d{4}\s+Topps,?$/i.test(String(v0 || '').trim()) && String(v1 || '').trim().length > 1;
   },
 
@@ -114,42 +115,33 @@ const UploadPage = {
     v0 = String(v0 || '').trim().replace(/,$/, '');
     v1 = String(v1 || '').trim().replace(/,$/, '');
     v2 = String(v2 || '').trim().replace(/,$/, '');
-
     var yearMatch = v0.match(/^(\d{4})/);
     if (!yearMatch) return null;
     var year = yearMatch[1];
-
-    // Remove "Graded" from end
-    var v1clean = v1.replace(/\s*Graded\s*$/i, '').trim();
-
-    // Extract card number
-    var numMatch = v1clean.match(/#([\w]+)/);
+    var v1c = v1.replace(/\s*Graded\s*$/i, '').trim();
+    var numMatch = v1c.match(/#([\w]+)/);
     var cardNum, player;
     if (numMatch) {
       cardNum = year + '-' + numMatch[1];
-      player = v1clean.replace(/\s*#.*/, '').trim();
+      player = v1c.replace(/\s*#.*/, '').trim();
     } else {
-      // Try last token as card number (e.g. "Cal Ripken 98T")
-      var parts = v1clean.rsplit ? v1clean.rsplit(' ', 1) : v1clean.split(' ');
-      var lastToken = parts[parts.length - 1];
-      if (parts.length > 1 && /^[\w]+$/.test(lastToken)) {
-        cardNum = year + '-' + lastToken;
+      var parts = v1c.split(' ');
+      var last = parts[parts.length - 1];
+      if (parts.length > 1 && /^[\w]+$/.test(last)) {
+        cardNum = year + '-' + last;
         player = parts.slice(0, parts.length - 1).join(' ').trim();
       } else {
         cardNum = year + '-?';
-        player = v1clean;
+        player = v1c;
       }
     }
+    return { section: section, card_number: cardNum, player: player, team: v2 || null, specialty: v0 + ' ' + v1c };
+  },
 
-    var specialty = v0 + ' ' + v1clean;
-
-    return {
-      section: section,
-      card_number: cardNum,
-      player: player,
-      team: v2 || null,
-      specialty: specialty
-    };
+  titleCase(str) {
+    return str.split(' ').map(function(w) {
+      return w.length > 0 ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w;
+    }).join(' ');
   },
 
   async parseExcel(file) {
@@ -160,18 +152,16 @@ const UploadPage = {
       reader.onload = function(e) {
         try {
           var wb = XLSX.read(e.target.result, { type: 'array' });
-          // Try Full Checklist first (Series 2 format), fall back to Sheet1
           var sheetName = wb.SheetNames.indexOf('Full Checklist') >= 0 ? 'Full Checklist' : wb.SheetNames[0];
           var ws = wb.Sheets[sheetName];
           var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
-          // First pass: identify real section header rows
+          // First pass: identify section header rows
           var sectionRows = {};
           for (var i = 0; i < rows.length; i++) {
             var v0 = String(rows[i][0] || '').trim();
             var v1 = String(rows[i][1] || '').trim();
             if (!v0 || v1) continue;
-            // BASE SET maps to Base
             if (v0.toUpperCase() === 'BASE SET') { sectionRows[i] = 'Base'; continue; }
             if (!self.isNoise(v0)) { sectionRows[i] = self.titleCase(v0); }
           }
@@ -179,7 +169,7 @@ const UploadPage = {
           // Second pass: parse cards
           var cards = [];
           var currentSection = 'Base';
-          var sectionSeen = {};
+          var secCounters = {};
 
           for (var i = 0; i < rows.length; i++) {
             var v0 = String(rows[i][0] || '').trim();
@@ -187,57 +177,77 @@ const UploadPage = {
             var v2 = String(rows[i][2] || '').trim();
             var v3 = String(rows[i][3] || '').trim();
 
-            if (!v0 && !v1) continue;
-
             // Section header
             if (sectionRows[i] !== undefined) {
               currentSection = sectionRows[i];
+              if (!secCounters[currentSection]) secCounters[currentSection] = 0;
               continue;
             }
 
-            // Skip noise rows with no player
+            // Both empty — skip
+            if (!v0 && !v1) continue;
+
+            // Col A has text, col B empty — noise row, skip
             if (v0 && !v1) continue;
 
-            // Buyback cards: col A empty or has year, col B has all info
-            if (currentSection === 'Iconic Topps Buyback Cards') {
-              // Series 2 format: col A = "1952 Topps", col B = "Player #num Graded"
-              if (v0 && self.isBuybackRow(v0, v1)) {
-                var bb = self.parseBuybackCard(v0, v1, v2, currentSection);
-                if (bb) cards.push(bb);
-                continue;
-              }
-              // Series 1 format: col A empty, col B = "1983 Topps Player Card #num Team"
-              if (!v0 && v1) {
-                var bb1 = self.parseBuybackS1(v1, v2, currentSection);
-                if (bb1) cards.push(bb1);
-                continue;
-              }
-            }
+            // Must have a player name
+            if (!v1 || v1.length < 2) continue;
 
-            // Cards with no number in col A (redemptions etc) — use section prefix
-            if (!v0 && v1 && v1.length > 1) {
-              var secCount = cards.filter(function(c){ return c.section === currentSection; }).length;
-              var prefix = currentSection.replace(/[^A-Z]/gi,'').substring(0,3).toUpperCase();
-              cards.push({
-                section: currentSection,
-                card_number: prefix + (secCount + 1),
-                player: v1.replace(/,$/, '').trim(),
-                team: v2.replace(/,$/, '').trim() || null,
-                specialty: v3.replace(/[()]/g,'').trim() || null
-              });
+            var player = v1.replace(/,$/, '').trim();
+            var team = v2.replace(/,$/, '').trim() || null;
+            var spec = v3.replace(/[()]/g, '').trim() || null;
+            var cardNum = '';
+
+            if (v0 && /^[\w][\w\-\/#\.]*$/.test(v0)) {
+              // Normal card: has a card number in col A
+              // Check if this is a Series 2 style buyback
+              if (currentSection === 'Iconic Topps Buyback Cards' && self.isBuybackRow(v0, v1)) {
+                var bb = self.parseBuybackCard(v0, v1, v2, currentSection);
+                if (bb) {
+                  cards.push(bb);
+                  secCounters[currentSection]++;
+                }
+                continue;
+              }
+              cardNum = v0;
+            } else if (!v0) {
+              // No card number in col A
+              if (!secCounters[currentSection]) secCounters[currentSection] = 0;
+              secCounters[currentSection]++;
+
+              if (currentSection === 'Iconic Topps Buyback Cards') {
+                // Series 1 buyback: "1983 Topps Tony Gwynn Card #482 ..."
+                var ym = player.match(/^(\d{4})\s+Topps\s+(.+)/i);
+                if (ym) {
+                  var yr = ym[1];
+                  var rest = ym[2].trim();
+                  var nm = rest.match(/Card\s+#(\w+)/i);
+                  cardNum = nm ? yr + '-' + nm[1] : yr + '-' + secCounters[currentSection];
+                  var pm = rest.match(/^(.+?)\s+Card/i);
+                  player = pm ? pm[1].trim() : rest.substring(0, 25).trim();
+                  spec = yr + ' Topps';
+                } else {
+                  cardNum = 'BUY' + secCounters[currentSection];
+                }
+              } else {
+                // Redemption / gift / no-number card
+                var pfx = currentSection.replace(/[^A-Za-z]/g, '').substring(0, 3).toUpperCase();
+                cardNum = pfx + secCounters[currentSection];
+              }
+            } else {
               continue;
             }
 
-            // Normal card row: col A = card number, col B = player
-            if (v0 && v1 && /^[\w][\w\-\/#\.]*$/.test(v0) && v1.length > 1) {
-              cards.push({
-                section: currentSection,
-                card_number: v0,
-                player: v1.replace(/,$/, '').trim(),
-                team: v2.replace(/,$/, '').trim() || null,
-                specialty: v3.replace(/[()]/g,'').trim() || null
-              });
-            }
+            if (!secCounters[currentSection]) secCounters[currentSection] = 0;
+            secCounters[currentSection]++;
+
+            cards.push({
+              section: currentSection,
+              card_number: cardNum,
+              player: player,
+              team: team,
+              specialty: spec
+            });
           }
 
           resolve(cards);
@@ -246,32 +256,6 @@ const UploadPage = {
       reader.onerror = function() { reject(new Error('File read failed')); };
       reader.readAsArrayBuffer(file);
     });
-  },
-
-  titleCase(str) {
-    return str.replace(/\w\S*/g, function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-  },
-
-  parseBuybackS1(v1, v2, section) {
-    // Format: "1983 Topps Tony Gwynn Card #482 GSan Diego Padres"
-    var v1c = String(v1 || '').trim();
-    var yearMatch = v1c.match(/^(\d{4})\s+Topps\s+(.+)/i);
-    if (!yearMatch) return null;
-    var year = yearMatch[1];
-    var rest = yearMatch[2].trim();
-    var numMatch = rest.match(/Card\s+#(\w+)/i);
-    var cardNum = numMatch ? year + '-' + numMatch[1] : year + '-?';
-    var playerMatch = rest.match(/^(.+?)\s+Card/i);
-    var player = playerMatch ? playerMatch[1].trim() : rest.substring(0, 25).trim();
-    return {
-      section: section,
-      card_number: cardNum,
-      player: player,
-      team: v2 || null,
-      specialty: year + ' Topps ' + rest.replace(/Card\s+#\w+\s*/i, '').trim()
-    };
   },
 
   loadSheetJS() {
@@ -305,7 +289,7 @@ const UploadPage = {
       var chunkSize = 400;
       for (var i = 0; i < cards.length; i += chunkSize) {
         document.getElementById('upload-prog-fill').style.width = (Math.round((i / cards.length) * 88) + 8) + '%';
-        document.getElementById('upload-status').textContent = 'Uploading cards ' + (i+1) + ' to ' + Math.min(i+chunkSize, cards.length) + ' of ' + cards.length + '...';
+        document.getElementById('upload-status').textContent = 'Uploading cards ' + (i + 1) + ' to ' + Math.min(i + chunkSize, cards.length) + ' of ' + cards.length + '...';
         var result = await db.from('cards').insert(cards.slice(i, i + chunkSize));
         if (result.error) throw result.error;
       }
