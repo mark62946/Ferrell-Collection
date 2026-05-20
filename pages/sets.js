@@ -167,7 +167,36 @@ const GradedPage = {
               <option>RC</option><option>Future Stars</option><option>Combo Card</option><option>Team Card</option>
             </select>
           </div>
-          <div class="form-group"><label>Parallel</label><input type="text" id="g-parallel" placeholder="e.g. Gold Refractor /50"></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px">
+          <div class="form-group">
+            <label>Parallel Name</label>
+            <input type="text" id="g-parallel-name" placeholder="e.g. Green Refractor">
+          </div>
+          <div class="form-group">
+            <label>Serial Number</label>
+            <input type="text" id="g-parallel-serial" placeholder="e.g. 67/150">
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500">
+            <input type="checkbox" id="g-is-auto" onchange="document.getElementById('g-auto-grade-wrap').style.display=this.checked?'':'none'">
+            This card has an Autograph
+          </label>
+        </div>
+        <div id="g-auto-grade-wrap" style="display:none;margin-top:10px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Auto Grade</label>
+              <select id="g-auto-grade">
+                <option value="">—</option>
+                <option>10</option><option>9.5</option><option>9</option><option>8.5</option>
+                <option>8</option><option>7.5</option><option>7</option><option>6</option>
+                <option>5</option><option>4</option><option>3</option><option>2</option><option>1</option>
+                <option>Authentic</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -219,6 +248,15 @@ const GradedPage = {
       // Manual entry — save to misc_cards with is_graded = true
       const player = document.getElementById('g-player').value.trim();
       if (!player) { showToast('Player name is required', 'error'); return; }
+      const parallelName = document.getElementById('g-parallel-name').value.trim();
+      const parallelSerial = document.getElementById('g-parallel-serial').value.trim();
+      const isAuto = document.getElementById('g-is-auto').checked;
+      const autoGrade = document.getElementById('g-auto-grade').value;
+      // Build description from parallel + auto info
+      let desc = '';
+      if (parallelName) desc += parallelName;
+      if (parallelSerial) desc += (desc ? ' ' : '') + parallelSerial;
+      if (isAuto) desc += (desc ? ' | ' : '') + 'Auto' + (autoGrade ? ' Grade: ' + autoGrade : '');
       try {
         await Misc.create({
           player: player,
@@ -227,7 +265,7 @@ const GradedPage = {
           brand: document.getElementById('g-brand').value || null,
           set_name: document.getElementById('g-setname').value || null,
           card_number: document.getElementById('g-cardnum').value || null,
-          description: document.getElementById('g-parallel').value || null,
+          description: desc || null,
           specialty: document.getElementById('g-specialty').value || null,
           quantity: 1,
           is_graded: true,
@@ -236,7 +274,7 @@ const GradedPage = {
           cert_number: document.getElementById('g-cert').value || null,
           purchase_price: parseFloat(document.getElementById('g-price').value) || null,
           purchase_date: document.getElementById('g-date').value || null,
-          notes: document.getElementById('g-notes').value || null
+          notes: (document.getElementById('g-notes').value || '') + (isAuto && autoGrade ? (document.getElementById('g-notes').value ? ' | ' : '') + 'Auto Grade: ' + autoGrade : '') || null
         });
         closeModal(); showToast('Graded card saved!', 'success');
         this.loadTable(); updateSidebarStats();
