@@ -169,7 +169,7 @@ const ChecklistPage = {
       html += '</div>';
       html += '</div>';
 
-      html += '<div class="table-wrap"><table>';
+      html += '<div class="table-wrap"><table style="table-layout:auto;width:100%">';
       html += '<thead><tr>';
       html += '<th style="width:60px">#</th>';
       html += '<th>Player</th>';
@@ -222,10 +222,10 @@ const ChecklistPage = {
     html += '</td>';
 
     // Team
-    html += '<td style="font-size:12px;color:var(--text3)">' + (card.team || '') + '</td>';
+    html += '<td style="font-size:12px;color:var(--text3);white-space:nowrap">' + (card.team || '') + '</td>';
 
     // Section
-    html += '<td style="font-size:11px;color:var(--text3)">' + (card.section || 'Base') + '</td>';
+    html += '<td style="font-size:11px;color:var(--text3);white-space:nowrap">' + (card.section || 'Base') + '</td>';
 
     // Owned toggle
     html += '<td style="text-align:center"><button onclick="ChecklistPage.toggleOwned(' + card.id + ')" style="width:32px;height:32px;border-radius:50%;border:1.5px solid ' + (isOwned ? 'var(--accent)' : 'var(--border2)') + ';background:' + (isOwned ? 'var(--accent)' : 'var(--surface)') + ';color:' + (isOwned ? '#fff' : 'var(--text3)') + ';cursor:pointer;font-size:15px;font-weight:600">' + (isOwned ? '✓' : '+') + '</button></td>';
