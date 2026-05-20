@@ -77,7 +77,7 @@ const GradedPage = {
       }
 
       let html = `<div class="table-wrap"><table>
-        <thead><tr><th>#</th><th>Player</th><th>Set</th><th>Grader</th><th>Grade</th><th>Cert #</th><th>Price Paid</th><th>Actions</th></tr></thead><tbody>`;
+        <thead><tr><th>#</th><th>Player</th><th>Set</th><th>Grader</th><th>Grade</th><th>Auto Grade</th><th>Cert #</th><th>Price Paid</th><th>Actions</th></tr></thead><tbody>`;
 
       // Checklist-linked graded cards
       gradedData.forEach(g => {
@@ -88,6 +88,7 @@ const GradedPage = {
           <td style="font-size:12px">${escH(s.year)} ${escH(s.brand)}<br><span style="color:var(--text3)">${escH(s.set_name)}</span></td>
           <td><span class="badge badge-${g.grader.toLowerCase()}">${escH(g.grader)}</span></td>
           <td><span class="badge badge-grade">${escH(g.grade)}</span></td>
+          <td>${g.auto_grade ? `<span class="badge badge-grade" style="background:var(--purple-bg);color:var(--purple)">${escH(g.auto_grade)}</span>` : '—'}</td>
           <td style="font-size:12px;color:var(--text3)">${g.cert_number ? escH(g.cert_number) : '—'}</td>
           <td>${g.purchase_price ? '$'+Number(g.purchase_price).toFixed(2) : '—'}</td>
           <td><button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${g.id}, 'graded')">Del</button></td>
@@ -107,6 +108,7 @@ const GradedPage = {
           <td style="font-size:12px">${escH(setInfo) || '—'}<br><span style="color:var(--text3);font-size:10px">Manual Entry</span></td>
           <td><span class="badge badge-${(m.grader||'').toLowerCase()}">${escH(m.grader||'')}</span></td>
           <td><span class="badge badge-grade">${escH(m.grade||'')}</span></td>
+          <td>${m.auto_grade ? `<span class="badge badge-grade" style="background:var(--purple-bg);color:var(--purple)">${escH(m.auto_grade)}</span>` : '—'}</td>
           <td style="font-size:12px;color:var(--text3)">${m.cert_number ? escH(m.cert_number) : '—'}</td>
           <td>${m.purchase_price ? '$'+Number(m.purchase_price).toFixed(2) : '—'}</td>
           <td><button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${m.id}, 'misc')">Del</button></td>
@@ -270,10 +272,11 @@ const GradedPage = {
           is_graded: true,
           grader: document.getElementById('g-grader').value,
           grade: document.getElementById('g-grade').value,
+          auto_grade: (isAuto && autoGrade) ? autoGrade : null,
           cert_number: document.getElementById('g-cert').value || null,
           purchase_price: parseFloat(document.getElementById('g-price').value) || null,
           purchase_date: document.getElementById('g-date').value || null,
-          notes: (document.getElementById('g-notes').value || '') + (isAuto && autoGrade ? (document.getElementById('g-notes').value ? ' | ' : '') + 'Auto Grade: ' + autoGrade : '') || null
+          notes: document.getElementById('g-notes').value || null
         });
         closeModal(); showToast('Graded card saved!', 'success');
         this.loadTable(); updateSidebarStats();
@@ -287,6 +290,7 @@ const GradedPage = {
           card_id: cardId,
           grader: document.getElementById('g-grader').value,
           grade: document.getElementById('g-grade').value,
+          auto_grade: null,
           cert_number: document.getElementById('g-cert').value || null,
           pop_higher: parseInt(document.getElementById('g-pop').value) || null,
           purchase_price: parseFloat(document.getElementById('g-price').value) || null,
