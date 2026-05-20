@@ -65,15 +65,22 @@ const GradedPage = {
   async loadTable() {
     document.getElementById('graded-table').innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
     try {
-      const { data, count } = await Graded.getAll(this.page, this.pageSize, this.search);
-      if (!data.length) {
+      // Load both checklist-linked graded cards AND manual graded entries from misc_cards
+      const { data: gradedData, count } = await Graded.getAll(this.page, this.pageSize, this.search);
+      const miscGraded = await Misc.getAll(this.search);
+      const manualGraded = miscGraded.filter(m => m.is_graded);
+
+      if (!gradedData.length && !manualGraded.length) {
         document.getElementById('graded-table').innerHTML = `<div class="table-wrap"><table><tr class="empty-row"><td colspan="8">No graded cards yet.</td></tr></table></div>`;
         document.getElementById('graded-pagination').innerHTML = '';
         return;
       }
+
       let html = `<div class="table-wrap"><table>
         <thead><tr><th>#</th><th>Player</th><th>Set</th><th>Grader</th><th>Grade</th><th>Cert #</th><th>Price Paid</th><th>Actions</th></tr></thead><tbody>`;
-      data.forEach(g => {
+
+      // Checklist-linked graded cards
+      gradedData.forEach(g => {
         const c = g.cards; const s = c.sets;
         html += `<tr>
           <td style="color:var(--text3)">${escH(c.card_number)}</td>
@@ -83,11 +90,29 @@ const GradedPage = {
           <td><span class="badge badge-grade">${escH(g.grade)}</span></td>
           <td style="font-size:12px;color:var(--text3)">${g.cert_number ? escH(g.cert_number) : '—'}</td>
           <td>${g.purchase_price ? '$'+Number(g.purchase_price).toFixed(2) : '—'}</td>
-          <td><div style="display:flex;gap:4px">
-            <button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${g.id})">Del</button>
-          </div></td>
+          <td><button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${g.id}, 'graded')">Del</button></td>
         </tr>`;
       });
+
+      // Manual graded entries from misc_cards
+      manualGraded.forEach(m => {
+        const setInfo = [m.year, m.brand, m.set_name].filter(Boolean).join(' ');
+        html += `<tr>
+          <td style="color:var(--text3)">${m.card_number ? escH(m.card_number) : '—'}</td>
+          <td>
+            <span style="font-weight:500">${escH(m.player)}</span>
+            ${m.specialty ? specBadge(m.specialty) : ''}
+            ${m.description ? `<div style="font-size:11px;color:var(--purple)">${escH(m.description)}</div>` : ''}
+          </td>
+          <td style="font-size:12px">${escH(setInfo) || '—'}<br><span style="color:var(--text3);font-size:10px">Manual Entry</span></td>
+          <td><span class="badge badge-${(m.grader||'').toLowerCase()}">${escH(m.grader||'')}</span></td>
+          <td><span class="badge badge-grade">${escH(m.grade||'')}</span></td>
+          <td style="font-size:12px;color:var(--text3)">${m.cert_number ? escH(m.cert_number) : '—'}</td>
+          <td>${m.purchase_price ? '$'+Number(m.purchase_price).toFixed(2) : '—'}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${m.id}, 'misc')">Del</button></td>
+        </tr>`;
+      });
+
       html += `</tbody></table></div>`;
       document.getElementById('graded-table').innerHTML = html;
 
@@ -108,17 +133,44 @@ const GradedPage = {
     const sets = await Sets.getAll();
     const setOptions = sets.map(s => `<option value="${s.id}">${s.year} ${s.brand} ${s.set_name}${s.series?' — '+s.series:''}</option>`).join('');
     openModal('Add Graded Card', `
-      <div class="form-section-title">Find Card</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Set</label>
-          <select id="g-set-id" onchange="GradedPage.loadCards(this.value)">
-            <option value="">Select set…</option>${setOptions}
-          </select>
-        </div>
-        <div class="form-group"><label>Card</label>
-          <select id="g-card-id"><option value="">Select set first…</option></select>
+      <div style="display:flex;gap:8px;margin-bottom:1rem">
+        <button id="g-mode-checklist" class="btn btn-primary btn-sm" onclick="GradedPage.switchMode('checklist')" style="flex:1">From Checklist</button>
+        <button id="g-mode-manual" class="btn btn-sm" onclick="GradedPage.switchMode('manual')" style="flex:1">Manual Entry</button>
+      </div>
+
+      <div id="g-checklist-fields">
+        <div class="form-section-title">Find Card</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Set</label>
+            <select id="g-set-id" onchange="GradedPage.loadCards(this.value)">
+              <option value="">Select set…</option>${setOptions}
+            </select>
+          </div>
+          <div class="form-group"><label>Card</label>
+            <select id="g-card-id"><option value="">Select set first…</option></select>
+          </div>
         </div>
       </div>
+
+      <div id="g-manual-fields" style="display:none">
+        <div class="form-section-title">Card Details</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Player *</label><input type="text" id="g-player" placeholder="e.g. Shohei Ohtani"></div>
+          <div class="form-group"><label>Team</label><input type="text" id="g-team" placeholder="e.g. Los Angeles Dodgers"></div>
+          <div class="form-group"><label>Year</label><input type="number" id="g-year" placeholder="e.g. 2026" min="1900" max="2099"></div>
+          <div class="form-group"><label>Brand</label><input type="text" id="g-brand" placeholder="e.g. Topps Chrome"></div>
+          <div class="form-group"><label>Set Name</label><input type="text" id="g-setname" placeholder="e.g. Series 2"></div>
+          <div class="form-group"><label>Card Number</label><input type="text" id="g-cardnum" placeholder="e.g. 500"></div>
+          <div class="form-group"><label>Specialty</label>
+            <select id="g-specialty">
+              <option value="">—</option>
+              <option>RC</option><option>Future Stars</option><option>Combo Card</option><option>Team Card</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Parallel</label><input type="text" id="g-parallel" placeholder="e.g. Gold Refractor /50"></div>
+        </div>
+      </div>
+
       <div class="form-section-title">Grading Details</div>
       <div class="form-grid">
         <div class="form-group"><label>Grader</label>
@@ -142,6 +194,16 @@ const GradedPage = {
       </div>`);
   },
 
+  switchMode(mode) {
+    const isChecklist = mode === 'checklist';
+    document.getElementById('g-checklist-fields').style.display = isChecklist ? '' : 'none';
+    document.getElementById('g-manual-fields').style.display = isChecklist ? 'none' : '';
+    document.getElementById('g-mode-checklist').className = 'btn btn-sm' + (isChecklist ? ' btn-primary' : '');
+    document.getElementById('g-mode-manual').className = 'btn btn-sm' + (!isChecklist ? ' btn-primary' : '');
+    document.getElementById('g-mode-checklist').style.flex = '1';
+    document.getElementById('g-mode-manual').style.flex = '1';
+  },
+
   async loadCards(setId) {
     const sel = document.getElementById('g-card-id');
     if (!setId) { sel.innerHTML = '<option>Select set first…</option>'; return; }
@@ -151,28 +213,63 @@ const GradedPage = {
   },
 
   async saveAdd() {
-    const cardId = document.getElementById('g-card-id').value;
-    if (!cardId || cardId === 'Select set first…') { showToast('Please select a card', 'error'); return; }
-    try {
-      await Graded.create({
-        card_id: cardId,
-        grader: document.getElementById('g-grader').value,
-        grade: document.getElementById('g-grade').value,
-        cert_number: document.getElementById('g-cert').value || null,
-        pop_higher: parseInt(document.getElementById('g-pop').value) || null,
-        purchase_price: parseFloat(document.getElementById('g-price').value) || null,
-        purchase_date: document.getElementById('g-date').value || null,
-        notes: document.getElementById('g-notes').value || null
-      });
-      closeModal(); showToast('Graded card saved!', 'success');
-      this.loadTable(); updateSidebarStats();
-    } catch(err) { showToast('Error: ' + err.message, 'error'); }
+    const isManual = document.getElementById('g-manual-fields').style.display !== 'none';
+
+    if (isManual) {
+      // Manual entry — save to misc_cards with is_graded = true
+      const player = document.getElementById('g-player').value.trim();
+      if (!player) { showToast('Player name is required', 'error'); return; }
+      try {
+        await Misc.create({
+          player: player,
+          team: document.getElementById('g-team').value || null,
+          year: parseInt(document.getElementById('g-year').value) || null,
+          brand: document.getElementById('g-brand').value || null,
+          set_name: document.getElementById('g-setname').value || null,
+          card_number: document.getElementById('g-cardnum').value || null,
+          description: document.getElementById('g-parallel').value || null,
+          specialty: document.getElementById('g-specialty').value || null,
+          quantity: 1,
+          is_graded: true,
+          grader: document.getElementById('g-grader').value,
+          grade: document.getElementById('g-grade').value,
+          cert_number: document.getElementById('g-cert').value || null,
+          purchase_price: parseFloat(document.getElementById('g-price').value) || null,
+          purchase_date: document.getElementById('g-date').value || null,
+          notes: document.getElementById('g-notes').value || null
+        });
+        closeModal(); showToast('Graded card saved!', 'success');
+        this.loadTable(); updateSidebarStats();
+      } catch(err) { showToast('Error: ' + err.message, 'error'); }
+    } else {
+      // Checklist entry — save to graded_cards with card_id
+      const cardId = document.getElementById('g-card-id').value;
+      if (!cardId || cardId === 'Select set first…') { showToast('Please select a card', 'error'); return; }
+      try {
+        await Graded.create({
+          card_id: cardId,
+          grader: document.getElementById('g-grader').value,
+          grade: document.getElementById('g-grade').value,
+          cert_number: document.getElementById('g-cert').value || null,
+          pop_higher: parseInt(document.getElementById('g-pop').value) || null,
+          purchase_price: parseFloat(document.getElementById('g-price').value) || null,
+          purchase_date: document.getElementById('g-date').value || null,
+          notes: document.getElementById('g-notes').value || null
+        });
+        closeModal(); showToast('Graded card saved!', 'success');
+        this.loadTable(); updateSidebarStats();
+      } catch(err) { showToast('Error: ' + err.message, 'error'); }
+    }
   },
 
-  async deleteGraded(id) {
+  async deleteGraded(id, type) {
     if (!confirm('Remove this graded card?')) return;
     try {
-      await Graded.delete(id);
+      if (type === 'misc') {
+        await Misc.delete(id);
+      } else {
+        await Graded.delete(id);
+      }
       showToast('Deleted', 'success');
       this.loadTable(); updateSidebarStats();
     } catch(err) { showToast('Error: ' + err.message, 'error'); }
