@@ -7,6 +7,9 @@ const CollectionPage = {
   filterSet: '',
   filterPlayer: '',
   filterTimer: null,
+  sortCol: 'player',
+  sortDir: 'asc',
+  allData: [],
 
   async render() {
     const el = document.getElementById('page-collection');
@@ -58,10 +61,57 @@ const CollectionPage = {
     });
   },
 
+  sortData(data) {
+    const col = this.sortCol;
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    return [...data].sort((a, b) => {
+      let av, bv;
+      if (col === 'num') {
+        const extractNum = s => { const m = String(s||'').trim().match(/(\d+)$/); return m ? parseInt(m[1]) : 0; };
+        const aPrefix = String(a.cards.card_number||'').trim().replace(/\d+$/, '');
+        const bPrefix = String(b.cards.card_number||'').trim().replace(/\d+$/, '');
+        if (aPrefix === bPrefix) return dir * (extractNum(a.cards.card_number) - extractNum(b.cards.card_number));
+        return dir * aPrefix.localeCompare(bPrefix);
+      } else if (col === 'player') {
+        av = (a.cards.player || '').toLowerCase();
+        bv = (b.cards.player || '').toLowerCase();
+      } else if (col === 'set') {
+        av = ((a.cards.sets.year || '') + ' ' + (a.cards.sets.brand || '') + ' ' + (a.cards.sets.set_name || '')).toLowerCase();
+        bv = ((b.cards.sets.year || '') + ' ' + (b.cards.sets.brand || '') + ' ' + (b.cards.sets.set_name || '')).toLowerCase();
+      } else if (col === 'qty') {
+        return dir * ((a.quantity || 0) - (b.quantity || 0));
+      } else if (col === 'pars') {
+        return dir * ((a.parallels || []).length - (b.parallels || []).length);
+      } else if (col === 'condition') {
+        av = (a.condition || '').toLowerCase();
+        bv = (b.condition || '').toLowerCase();
+      }
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return 0;
+    });
+  },
+
+  setSort(col) {
+    if (this.sortCol === col) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortCol = col;
+      this.sortDir = 'asc';
+    }
+    this.renderTable(this.allData);
+  },
+
+  sortIcon(col) {
+    if (this.sortCol !== col) return '<span style="color:var(--text3);margin-left:4px;font-size:10px">⇅</span>';
+    return this.sortDir === 'asc'
+      ? '<span style="color:var(--accent);margin-left:4px;font-size:10px">▲</span>'
+      : '<span style="color:var(--accent);margin-left:4px;font-size:10px">▼</span>';
+  },
+
   async loadTable() {
     document.getElementById('col-table').innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
     try {
-      // Fetch all and filter client-side for joined fields
       const { data, count } = await Collection.getAll(this.page, this.pageSize, {
         setId: this.filterSet || undefined
       });
@@ -69,10 +119,11 @@ const CollectionPage = {
       let filtered = data;
       if (this.filterPlayer) {
         const q = this.filterPlayer.toLowerCase();
-        filtered = data.filter(r => r.cards.player.toLowerCase().includes(q));
+        filtered = data.filter(r => r.cards && r.cards.player.toLowerCase().includes(q));
       }
 
       this.total = count;
+      this.allData = filtered;
       document.getElementById('col-count').textContent = `${filtered.length} cards shown`;
 
       if (!filtered.length) {
@@ -81,42 +132,60 @@ const CollectionPage = {
         return;
       }
 
-      let html = `<div class="table-wrap"><table>
-        <thead><tr>
-          <th>#</th><th>Player</th><th>Set</th><th>Qty</th><th>Parallels</th><th>Condition</th><th>Actions</th>
-        </tr></thead><tbody>`;
-
-      filtered.forEach(entry => {
-        const c = entry.cards;
-        const set = c.sets;
-        const pars = entry.parallels || [];
-        html += `<tr>
-          <td style="color:var(--text3)">${escH(c.card_number)}</td>
-          <td>
-            <span style="font-weight:500">${escH(c.player)}</span>
-            ${specBadge(c.specialty)}
-          </td>
-          <td style="font-size:12px">${escH(set.year)} ${escH(set.brand)}<br><span style="color:var(--text3)">${escH(set.set_name)}${set.series ? ' — '+set.series : ''}</span></td>
-          <td style="font-weight:600;color:var(--accent)">${entry.quantity}</td>
-          <td>${pars.length > 0
-            ? `<div class="par-tags">${pars.map(p => `<span class="par-tag">${escH(p.parallel_name)} ×${p.quantity}${p.serial_number ? ` <span class="serial">${escH(p.serial_number)}</span>` : ''}</span>`).join('')}</div>`
-            : '<span class="text-muted text-sm">—</span>'}</td>
-          <td style="font-size:12px;color:var(--text3)">${escH(entry.condition || '—')}</td>
-          <td>
-            <div style="display:flex;gap:4px">
-              <button class="btn btn-sm" onclick="CollectionPage.openEditModal(${entry.id}, ${c.id})">Edit</button>
-              <button class="btn btn-sm btn-danger" onclick="CollectionPage.deleteEntry(${entry.id})">Del</button>
-            </div>
-          </td>
-        </tr>`;
-      });
-
-      html += `</tbody></table></div>`;
-      document.getElementById('col-table').innerHTML = html;
+      this.renderTable(filtered);
       this.renderPagination();
     } catch(err) {
       document.getElementById('col-table').innerHTML = `<div class="loading" style="color:var(--danger)">Error: ${err.message}</div>`;
     }
+  },
+
+  renderTable(data) {
+    const sorted = this.sortData(data);
+
+    const thStyle = 'cursor:pointer;user-select:none;white-space:nowrap;';
+    let html = `<div class="table-wrap"><table>
+      <thead><tr>
+        <th style="${thStyle}" onclick="CollectionPage.setSort('num')">#${this.sortIcon('num')}</th>
+        <th style="${thStyle}" onclick="CollectionPage.setSort('player')">Player${this.sortIcon('player')}</th>
+        <th style="${thStyle}" onclick="CollectionPage.setSort('set')">Set${this.sortIcon('set')}</th>
+        <th style="${thStyle};text-align:center" onclick="CollectionPage.setSort('qty')">Base QTY${this.sortIcon('qty')}</th>
+        <th style="${thStyle}" onclick="CollectionPage.setSort('pars')">Parallels${this.sortIcon('pars')}</th>
+        <th style="${thStyle}" onclick="CollectionPage.setSort('condition')">Condition${this.sortIcon('condition')}</th>
+        <th>Actions</th>
+      </tr></thead><tbody>`;
+
+    sorted.forEach(entry => {
+      const c = entry.cards;
+      const set = c.sets;
+      const pars = entry.parallels || [];
+      const parTotal = pars.reduce((sum, p) => sum + (p.quantity || 1), 0);
+
+      html += `<tr>
+        <td style="color:var(--text3);white-space:nowrap">${escH(c.card_number)}</td>
+        <td>
+          <span style="font-weight:500">${escH(c.player)}</span>
+          ${specBadge(c.specialty)}
+        </td>
+        <td style="font-size:12px">${escH(set.year)} ${escH(set.brand)}<br><span style="color:var(--text3)">${escH(set.set_name)}${set.series ? ' — '+set.series : ''}</span></td>
+        <td style="font-weight:600;color:var(--accent);text-align:center">${entry.quantity}</td>
+        <td>${pars.length > 0
+          ? `<div style="display:flex;flex-direction:column;gap:3px">
+               <div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:2px">${parTotal} total cop${parTotal !== 1 ? 'ies' : 'y'}</div>
+               <div class="par-tags">${pars.map(p => `<span class="par-tag">${escH(p.parallel_name)} ×${p.quantity}${p.serial_number ? ` <span class="serial">${escH(p.serial_number)}</span>` : ''}</span>`).join('')}</div>
+             </div>`
+          : '<span class="text-muted text-sm">—</span>'}</td>
+        <td style="font-size:12px;color:var(--text3)">${escH(entry.condition || '—')}</td>
+        <td>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-sm" onclick="CollectionPage.openEditModal(${entry.id}, ${c.id})">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="CollectionPage.deleteEntry(${entry.id})">Del</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+    document.getElementById('col-table').innerHTML = html;
   },
 
   renderPagination() {
@@ -264,4 +333,3 @@ const CollectionPage = {
     } catch(err) { showToast('Export error: ' + err.message, 'error'); }
   }
 };
-
