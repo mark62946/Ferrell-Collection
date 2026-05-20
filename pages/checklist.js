@@ -171,13 +171,13 @@ const ChecklistPage = {
 
       html += '<div class="table-wrap"><table>';
       html += '<thead><tr>';
-      html += '<th style="width:70px">#</th>';
+      html += '<th style="width:60px">#</th>';
       html += '<th>Player</th>';
-      html += '<th style="width:170px">Team</th>';
-      html += '<th style="width:120px">Section / Type</th>';
-      html += '<th style="width:80px;text-align:center">Owned</th>';
-      html += '<th style="width:100px;text-align:center">Qty</th>';
-      html += '<th style="width:70px;text-align:center">Parallels</th>';
+      html += '<th style="white-space:nowrap">Team</th>';
+      html += '<th style="white-space:nowrap">Section / Type</th>';
+      html += '<th style="width:70px;text-align:center">Owned</th>';
+      html += '<th style="width:90px;text-align:center">Qty</th>';
+      html += '<th style="width:60px;text-align:center">Parallels</th>';
       html += '</tr></thead>';
       html += '<tbody id="cl-tbody">';
 
@@ -476,4 +476,3 @@ const ChecklistPage = {
     this.renderMain();
   }
 };
-
