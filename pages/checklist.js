@@ -90,13 +90,13 @@ const ChecklistPage = {
         sectionMap[sec].sort((a, b) => {
           // Extract trailing number from card number (handles BSA2-1, 91B2-10, etc.)
           const extractNum = (s) => {
-            const m = String(s).match(/(\d+)$/);
+            const m = String(s).trim().match(/(\d+)$/);
             return m ? parseInt(m[1]) : 0;
           };
-          const aPrefix = String(a.card_number).replace(/\d+$/, '');
-          const bPrefix = String(b.card_number).replace(/\d+$/, '');
+          const aPrefix = String(a.card_number).trim().replace(/\d+$/, '');
+          const bPrefix = String(b.card_number).trim().replace(/\d+$/, '');
           if (aPrefix === bPrefix) return extractNum(a.card_number) - extractNum(b.card_number);
-          return String(a.card_number).localeCompare(String(b.card_number));
+          return String(a.card_number).trim().localeCompare(String(b.card_number).trim());
         });
       });
 
