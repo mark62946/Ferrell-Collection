@@ -91,7 +91,10 @@ const GradedPage = {
           <td>${g.auto_grade ? `<span class="badge badge-grade" style="background:var(--purple-bg);color:var(--purple)">${escH(g.auto_grade)}</span>` : '—'}</td>
           <td style="font-size:12px;color:var(--text3)">${g.cert_number ? escH(g.cert_number) : '—'}</td>
           <td>${g.purchase_price ? '$'+Number(g.purchase_price).toFixed(2) : '—'}</td>
-          <td><button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${g.id}, 'graded')">Del</button></td>
+          <td><div style="display:flex;gap:4px">
+            <button class="btn btn-sm" onclick="GradedPage.openEditModal(${g.id}, 'graded')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${g.id}, 'graded')">Del</button>
+          </div></td>
         </tr>`;
       });
 
@@ -111,7 +114,10 @@ const GradedPage = {
           <td>${m.auto_grade ? `<span class="badge badge-grade" style="background:var(--purple-bg);color:var(--purple)">${escH(m.auto_grade)}</span>` : '—'}</td>
           <td style="font-size:12px;color:var(--text3)">${m.cert_number ? escH(m.cert_number) : '—'}</td>
           <td>${m.purchase_price ? '$'+Number(m.purchase_price).toFixed(2) : '—'}</td>
-          <td><button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${m.id}, 'misc')">Del</button></td>
+          <td><div style="display:flex;gap:4px">
+            <button class="btn btn-sm" onclick="GradedPage.openEditModal(${m.id}, 'misc')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="GradedPage.deleteGraded(${m.id}, 'misc')">Del</button>
+          </div></td>
         </tr>`;
       });
 
@@ -301,6 +307,122 @@ const GradedPage = {
         this.loadTable(); updateSidebarStats();
       } catch(err) { showToast('Error: ' + err.message, 'error'); }
     }
+  },
+
+  async openEditModal(id, type) {
+    // Load existing data
+    let data;
+    if (type === 'graded') {
+      const { data: d, error } = await db.from('graded_cards')
+        .select('*, cards(card_number, player, team, specialty, sets(year, brand, set_name))')
+        .eq('id', id).single();
+      if (error) { showToast('Error loading card', 'error'); return; }
+      data = d;
+    } else {
+      const { data: d, error } = await db.from('misc_cards').eq ? 
+        await db.from('misc_cards').select('*').eq('id', id).single() :
+        await db.from('misc_cards').select('*').eq('id', id).single();
+      if (error) { showToast('Error loading card', 'error'); return; }
+      data = d;
+    }
+
+    const gradeOptions = ['10','9.5','9','8.5','8','7.5','7','6','5','4','3','2','1','Authentic']
+      .map(g => `<option${data.grade === g ? ' selected' : ''}>${g}</option>`).join('');
+    const autoGradeOptions = ['','10','9.5','9','8.5','8','7.5','7','6','5','4','3','2','1','Authentic']
+      .map(g => `<option value="${g}"${data.auto_grade === g ? ' selected' : ''}>${g || '—'}</option>`).join('');
+    const graderOptions = ['PSA','BGS','SGC','CGC','Other']
+      .map(g => `<option${data.grader === g ? ' selected' : ''}>${g}</option>`).join('');
+
+    // Card info section varies by type
+    let cardInfoHtml = '';
+    if (type === 'graded') {
+      const c = data.cards; const s = c.sets;
+      cardInfoHtml = `<div class="form-section-title">Card</div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;margin-bottom:1rem">
+          <strong>#${escH(c.card_number)} ${escH(c.player)}</strong>${specBadge(c.specialty)}
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">${escH(s.year)} ${escH(s.brand)} ${escH(s.set_name)}</div>
+        </div>`;
+    } else {
+      cardInfoHtml = `<div class="form-section-title">Card Details</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Player</label><input type="text" id="e-player" value="${escH(data.player||'')}"></div>
+          <div class="form-group"><label>Team</label><input type="text" id="e-team" value="${escH(data.team||'')}"></div>
+          <div class="form-group"><label>Year</label><input type="number" id="e-year" value="${data.year||''}"></div>
+          <div class="form-group"><label>Brand</label><input type="text" id="e-brand" value="${escH(data.brand||'')}"></div>
+          <div class="form-group"><label>Set Name</label><input type="text" id="e-setname" value="${escH(data.set_name||'')}"></div>
+          <div class="form-group"><label>Card Number</label><input type="text" id="e-cardnum" value="${escH(data.card_number||'')}"></div>
+        </div>
+        <div class="form-group mt-1"><label>Description / Parallel</label><input type="text" id="e-desc" value="${escH(data.description||'')}"></div>`;
+    }
+
+    openModal('Edit Graded Card', `
+      ${cardInfoHtml}
+      <div class="form-section-title">Grading Details</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Grader</label>
+          <select id="e-grader">${graderOptions}</select>
+        </div>
+        <div class="form-group"><label>Grade</label>
+          <select id="e-grade">${gradeOptions}</select>
+        </div>
+        <div class="form-group"><label>Auto Grade</label>
+          <select id="e-auto-grade">${autoGradeOptions}</select>
+        </div>
+        <div class="form-group"><label>Cert Number</label>
+          <input type="text" id="e-cert" value="${escH(data.cert_number||'')}">
+        </div>
+        <div class="form-group"><label>Pop Higher</label>
+          <input type="number" id="e-pop" value="${data.pop_higher||''}" min="0">
+        </div>
+        <div class="form-group"><label>Purchase Price ($)</label>
+          <input type="number" id="e-price" value="${data.purchase_price||''}" step="0.01">
+        </div>
+        <div class="form-group"><label>Purchase Date</label>
+          <input type="date" id="e-date" value="${data.purchase_date||''}">
+        </div>
+      </div>
+      <div class="form-group mt-1"><label>Notes</label>
+        <textarea id="e-notes">${escH(data.notes||'')}</textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="GradedPage.saveEdit(${id}, '${type}')">Save Changes</button>
+      </div>`);
+  },
+
+  async saveEdit(id, type) {
+    const updates = {
+      grader: document.getElementById('e-grader').value,
+      grade: document.getElementById('e-grade').value,
+      auto_grade: document.getElementById('e-auto-grade').value || null,
+      cert_number: document.getElementById('e-cert').value || null,
+      pop_higher: parseInt(document.getElementById('e-pop').value) || null,
+      purchase_price: parseFloat(document.getElementById('e-price').value) || null,
+      purchase_date: document.getElementById('e-date').value || null,
+      notes: document.getElementById('e-notes').value || null
+    };
+
+    try {
+      if (type === 'graded') {
+        await Graded.update(id, updates);
+      } else {
+        // Also update manual card fields
+        const miscUpdates = {
+          ...updates,
+          player: document.getElementById('e-player').value.trim(),
+          team: document.getElementById('e-team').value || null,
+          year: parseInt(document.getElementById('e-year').value) || null,
+          brand: document.getElementById('e-brand').value || null,
+          set_name: document.getElementById('e-setname').value || null,
+          card_number: document.getElementById('e-cardnum').value || null,
+          description: document.getElementById('e-desc').value || null
+        };
+        await Misc.update(id, miscUpdates);
+      }
+      closeModal();
+      showToast('Graded card updated!', 'success');
+      this.loadTable();
+    } catch(err) { showToast('Error: ' + err.message, 'error'); }
   },
 
   async deleteGraded(id, type) {
