@@ -88,9 +88,14 @@ const ChecklistPage = {
       // Sort cards within each section numerically where possible
       sectionOrder.forEach(sec => {
         sectionMap[sec].sort((a, b) => {
-          const aNum = parseInt(a.card_number);
-          const bNum = parseInt(b.card_number);
-          if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+          // Extract trailing number from card number (handles BSA2-1, 91B2-10, etc.)
+          const extractNum = (s) => {
+            const m = String(s).match(/(\d+)$/);
+            return m ? parseInt(m[1]) : 0;
+          };
+          const aPrefix = String(a.card_number).replace(/\d+$/, '');
+          const bPrefix = String(b.card_number).replace(/\d+$/, '');
+          if (aPrefix === bPrefix) return extractNum(a.card_number) - extractNum(b.card_number);
           return String(a.card_number).localeCompare(String(b.card_number));
         });
       });
