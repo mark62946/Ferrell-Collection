@@ -89,7 +89,7 @@ const UploadPage = {
     var v0l = v0.toLowerCase().trim();
     if (/^\d+$/.test(v0)) return true;
     if (/^\d+ (cards?|players?|figures?)/i.test(v0)) return true;
-    var exact = ['*subject to change','base','insert','autograph relic','autograph','relic','base set'];
+    var exact = ['*subject to change','base','insert','autograph relic','autograph','relic','base set','base cards'];
     if (exact.indexOf(v0l) >= 0) return true;
     var qualWords = ['hobby exclusive','retail exclusive','super box exclusive',
       'hobby/hobby jumbo only','retail holiday tin exclusive','fanatics box exclusive',
@@ -162,7 +162,7 @@ const UploadPage = {
             var v0 = String(rows[i][0] || '').trim();
             var v1 = String(rows[i][1] || '').trim();
             if (!v0 || v1) continue;
-            if (v0.toUpperCase() === 'BASE SET') { sectionRows[i] = 'Base'; continue; }
+            if (v0.toUpperCase() === 'BASE SET' || v0.toUpperCase() === 'BASE CARDS') { sectionRows[i] = 'Base'; continue; }
             if (!self.isNoise(v0)) { sectionRows[i] = self.titleCase(v0); }
           }
 
