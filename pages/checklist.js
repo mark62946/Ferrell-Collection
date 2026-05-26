@@ -264,12 +264,53 @@ const ChecklistPage = {
 
   buildParItem(cardId, idx, p) {
     const opts = PARALLEL_OPTIONS.map(o => '<option' + (o === p.parallel_name ? ' selected' : '') + '>' + o + '</option>').join('');
+    const inputId = 'par-search-' + cardId + '-' + idx;
+    const listId = 'par-list-' + cardId + '-' + idx;
     return '<div id="pi-' + cardId + '-' + idx + '" style="display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 8px">' +
-      '<select onchange="ChecklistPage.updatePar(' + cardId + ',' + idx + ',\'parallel_name\',this.value)" style="height:24px;font-size:11px;border:1px solid var(--border2);border-radius:4px;max-width:170px">' + opts + '</select>' +
+      '<div style="position:relative;display:inline-block">' +
+        '<input type="text" id="' + inputId + '" value="' + (p.parallel_name || '') + '" ' +
+          'placeholder="Search parallel..." ' +
+          'oninput="ChecklistPage.filterParList('' + inputId + '','' + listId + '')" ' +
+          'onfocus="ChecklistPage.showParList('' + listId + '')" ' +
+          'onblur="setTimeout(function(){ChecklistPage.hideParList('' + listId + '')},200)" ' +
+          'style="width:175px;height:24px;font-size:11px;border:1px solid var(--border2);border-radius:4px;padding:0 6px"> ' +
+        '<div id="' + listId + '" style="display:none;position:absolute;top:26px;left:0;width:220px;max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--border2);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:999">' +
+          PARALLEL_OPTIONS.map(o => '<div onclick="ChecklistPage.selectPar('' + inputId + '','' + listId + '',' + cardId + ',' + idx + ','' + o.replace(/'/g,"\'") + '')" ' +
+            'style="padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap" ' +
+            'onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background=''">' + o + '</div>').join('') +
+        '</div>' +
+      '</div>' +
       '<input type="number" min="1" value="' + (p.quantity || 1) + '" onchange="ChecklistPage.updatePar(' + cardId + ',' + idx + ',\'quantity\',this.value)" style="width:42px;height:24px;font-size:11px;text-align:center;border:1px solid var(--border2);border-radius:4px">' +
       '<input type="text" placeholder="e.g. 31/99" value="' + (p.serial_number || '') + '" onchange="ChecklistPage.updatePar(' + cardId + ',' + idx + ',\'serial_number\',this.value)" style="width:85px;height:24px;font-size:11px;border:1px solid var(--border2);border-radius:4px;padding:0 4px">' +
       '<button onclick="ChecklistPage.removePar(' + cardId + ',' + idx + ')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:0 2px">×</button>' +
       '</div>';
+  },
+
+  filterParList(inputId, listId) {
+    var q = document.getElementById(inputId).value.toLowerCase();
+    var list = document.getElementById(listId);
+    if (!list) return;
+    list.style.display = 'block';
+    Array.from(list.children).forEach(function(item) {
+      item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  },
+
+  showParList(listId) {
+    var list = document.getElementById(listId);
+    if (list) list.style.display = 'block';
+  },
+
+  hideParList(listId) {
+    var list = document.getElementById(listId);
+    if (list) list.style.display = 'none';
+  },
+
+  selectPar(inputId, listId, cardId, idx, value) {
+    var input = document.getElementById(inputId);
+    if (input) input.value = value;
+    ChecklistPage.hideParList(listId);
+    ChecklistPage.updatePar(cardId, idx, 'parallel_name', value);
   },
 
   getOrInitChange(cardId) {
