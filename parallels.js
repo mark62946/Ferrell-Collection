@@ -122,4 +122,9 @@ const PARALLEL_OPTIONS = [
   "Image Variation",
   "Short Print (SP)",
   "Custom / Other",
+  "Purple Foil /299",
+  "Fuchsia Foil /199",
+  "Sparkle Foil /175",
+  "Aqua Foil /75",
+  "Red Foil /10",
 ];
