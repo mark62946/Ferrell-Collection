@@ -11,6 +11,7 @@ const ChecklistPage = {
   async render() {
     const el = document.getElementById('page-checklist');
     el.innerHTML = `<div class="loading"><div class="spinner"></div> Loading sets...</div>`;
+    if (!ChecklistPage._parClicksInit) { ChecklistPage.initParClicks(); ChecklistPage._parClicksInit = true; }
     try {
       this.sets = await Sets.getAll();
       if (!this.sets.length) {
@@ -263,31 +264,46 @@ const ChecklistPage = {
   },
 
   buildParItem(cardId, idx, p) {
-    const opts = PARALLEL_OPTIONS.map(o => '<option' + (o === p.parallel_name ? ' selected' : '') + '>' + o + '</option>').join('');
-    const inputId = 'par-search-' + cardId + '-' + idx;
-    const listId = 'par-list-' + cardId + '-' + idx;
-    return '<div id="pi-' + cardId + '-' + idx + '" style="display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 8px">' +
-      '<div style="position:relative;display:inline-block">' +
-        '<input type="text" id="' + inputId + '" value="' + (p.parallel_name || '') + '" ' +
-          'placeholder="Search parallel..." ' +
-          'oninput="ChecklistPage.filterParList('' + inputId + '','' + listId + '')" ' +
-          'onfocus="ChecklistPage.showParList('' + listId + '')" ' +
-          'onblur="setTimeout(function(){ChecklistPage.hideParList('' + listId + '')},200)" ' +
-          'style="width:175px;height:24px;font-size:11px;border:1px solid var(--border2);border-radius:4px;padding:0 6px"> ' +
-        '<div id="' + listId + '" style="display:none;position:absolute;top:26px;left:0;width:220px;max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--border2);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:999">' +
-          PARALLEL_OPTIONS.map(o => '<div onclick="ChecklistPage.selectPar('' + inputId + '','' + listId + '',' + cardId + ',' + idx + ','' + o.replace(/'/g,"\'") + '')" ' +
-            'style="padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap" ' +
-            'onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background=''">' + o + '</div>').join('') +
-        '</div>' +
-      '</div>' +
-      '<input type="number" min="1" value="' + (p.quantity || 1) + '" onchange="ChecklistPage.updatePar(' + cardId + ',' + idx + ',\'quantity\',this.value)" style="width:42px;height:24px;font-size:11px;text-align:center;border:1px solid var(--border2);border-radius:4px">' +
-      '<input type="text" placeholder="e.g. 31/99" value="' + (p.serial_number || '') + '" onchange="ChecklistPage.updatePar(' + cardId + ',' + idx + ',\'serial_number\',this.value)" style="width:85px;height:24px;font-size:11px;border:1px solid var(--border2);border-radius:4px;padding:0 4px">' +
-      '<button onclick="ChecklistPage.removePar(' + cardId + ',' + idx + ')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:0 2px">×</button>' +
-      '</div>';
+    var inputId = 'psi-' + cardId + '-' + idx;
+    var listId = 'psl-' + cardId + '-' + idx;
+    var escapedName = (p.parallel_name || '').replace(/"/g, '&quot;');
+    var listItems = PARALLEL_OPTIONS.map(function(o) {
+      var esc = o.replace(/"/g, '&quot;');
+      return '<div class="par-opt"'
+        + ' data-val="' + esc + '"'
+        + ' data-cardid="' + cardId + '"'
+        + ' data-idx="' + idx + '"'
+        + ' data-input="' + inputId + '"'
+        + ' data-list="' + listId + '"'
+        + ' style="padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap">'
+        + esc + '</div>';
+    }).join('');
+    return '<div id="pi-' + cardId + '-' + idx + '" style="display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 8px">'
+      + '<div style="position:relative;display:inline-block">'
+      + '<input type="text"'
+      + ' id="' + inputId + '"'
+      + ' class="par-search-input"'
+      + ' data-list="' + listId + '"'
+      + ' value="' + escapedName + '"'
+      + ' placeholder="Search parallel..."'
+      + ' style="width:175px;height:24px;font-size:11px;border:1px solid var(--border2);border-radius:4px;padding:0 6px">'
+      + '<div id="' + listId + '" style="display:none;position:absolute;top:26px;left:0;width:220px;max-height:180px;overflow-y:auto;background:#fff;border:1px solid var(--border2);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:999">'
+      + listItems
+      + '</div>'
+      + '</div>'
+      + '<input type="number" min="1" value="' + (p.quantity || 1) + '"'
+      + ' class="par-qty-input" data-cardid="' + cardId + '" data-idx="' + idx + '"'
+      + ' style="width:42px;height:24px;font-size:11px;text-align:center;border:1px solid var(--border2);border-radius:4px">'
+      + '<input type="text" placeholder="e.g. 31/99" value="' + (p.serial_number || '') + '"'
+      + ' class="par-serial-input" data-cardid="' + cardId + '" data-idx="' + idx + '"'
+      + ' style="width:85px;height:24px;font-size:11px;border:1px solid var(--border2);border-radius:4px;padding:0 4px">'
+      + '<button class="par-remove-btn" data-cardid="' + cardId + '" data-idx="' + idx + '" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:0 2px">x</button>'
+      + '</div>';
   },
 
+
   filterParList(inputId, listId) {
-    var q = document.getElementById(inputId).value.toLowerCase();
+    var q = (document.getElementById(inputId).value || '').toLowerCase();
     var list = document.getElementById(listId);
     if (!list) return;
     list.style.display = 'block';
@@ -311,6 +327,57 @@ const ChecklistPage = {
     if (input) input.value = value;
     ChecklistPage.hideParList(listId);
     ChecklistPage.updatePar(cardId, idx, 'parallel_name', value);
+  },
+
+  initParClicks() {
+    document.addEventListener('click', function(e) {
+      // Par option selected
+      var opt = e.target.closest('.par-opt');
+      if (opt) {
+        var val = opt.getAttribute('data-val');
+        var cardId = opt.getAttribute('data-cardid');
+        var idx = parseInt(opt.getAttribute('data-idx'));
+        var inputId = opt.getAttribute('data-input');
+        var listId = opt.getAttribute('data-list');
+        ChecklistPage.selectPar(inputId, listId, cardId, idx, val);
+        return;
+      }
+      // Remove button
+      var rmBtn = e.target.closest('.par-remove-btn');
+      if (rmBtn) {
+        ChecklistPage.removePar(rmBtn.getAttribute('data-cardid'), parseInt(rmBtn.getAttribute('data-idx')));
+        return;
+      }
+    });
+
+    document.addEventListener('input', function(e) {
+      // Search input filtering
+      if (e.target.classList.contains('par-search-input')) {
+        var listId = e.target.getAttribute('data-list');
+        ChecklistPage.filterParList(e.target.id, listId);
+      }
+      // Qty input
+      if (e.target.classList.contains('par-qty-input')) {
+        ChecklistPage.updatePar(e.target.getAttribute('data-cardid'), parseInt(e.target.getAttribute('data-idx')), 'quantity', e.target.value);
+      }
+      // Serial input
+      if (e.target.classList.contains('par-serial-input')) {
+        ChecklistPage.updatePar(e.target.getAttribute('data-cardid'), parseInt(e.target.getAttribute('data-idx')), 'serial_number', e.target.value);
+      }
+    });
+
+    document.addEventListener('focus', function(e) {
+      if (e.target.classList.contains('par-search-input')) {
+        ChecklistPage.showParList(e.target.getAttribute('data-list'));
+      }
+    }, true);
+
+    document.addEventListener('blur', function(e) {
+      if (e.target.classList.contains('par-search-input')) {
+        var listId = e.target.getAttribute('data-list');
+        setTimeout(function() { ChecklistPage.hideParList(listId); }, 200);
+      }
+    }, true);
   },
 
   getOrInitChange(cardId) {
