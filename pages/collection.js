@@ -117,10 +117,6 @@ const CollectionPage = {
       });
 
       let filtered = data;
-      if (this.filterPlayer) {
-        const q = this.filterPlayer.toLowerCase();
-        filtered = data.filter(r => r.cards && r.cards.player.toLowerCase().includes(q));
-      }
 
       this.total = count;
       this.allData = filtered;
