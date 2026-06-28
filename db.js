@@ -50,19 +50,31 @@ const Cards = {
 // ── Collection ──
 const Collection = {
   async getAll(page = 1, pageSize = 50, filters = {}) {
+    // Step 1 — if filtering by player or set, get matching card IDs first
+    let cardIds = null;
+    if (filters.player || filters.setId) {
+      let cardQuery = db.from('cards').select('id');
+      if (filters.player) cardQuery = cardQuery.ilike('player', `%${filters.player}%`);
+      if (filters.setId) cardQuery = cardQuery.eq('set_id', filters.setId);
+      const { data: matchingCards, error: cardError } = await cardQuery;
+      if (cardError) throw cardError;
+      cardIds = (matchingCards || []).map(c => c.id);
+      if (!cardIds.length) return { data: [], count: 0 };
+    }
+
+    // Step 2 — fetch collection rows, filtered by card IDs if needed
     let query = db
       .from('collection')
       .select(`*, cards(id, card_number, player, team, specialty, set_id, sets(year, brand, set_name, series)), parallels(*)`, { count: 'exact' });
 
-    if (filters.player) query = query.ilike('cards.player', `%${filters.player}%`);
-    if (filters.setId) query = query.eq('cards.set_id', filters.setId);
+    if (cardIds !== null) query = query.in('card_id', cardIds);
 
     const from = (page - 1) * pageSize;
     query = query.range(from, from + pageSize - 1).order('created_at', { ascending: false });
 
     const { data, error, count } = await query;
     if (error) throw error;
-    return { data: data.filter(r => r.cards), count };
+    return { data: (data || []).filter(r => r.cards), count };
   },
 
   async getByCard(cardId) {
