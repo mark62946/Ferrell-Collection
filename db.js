@@ -70,7 +70,7 @@ const Collection = {
     if (cardIds !== null) query = query.in('card_id', cardIds);
 
     const from = (page - 1) * pageSize;
-    query = query.range(from, from + pageSize - 1).order('created_at', { ascending: false });
+    query = query.range(from, from + pageSize - 1).order('cards(player)', { ascending: true });
 
     const { data, error, count } = await query;
     if (error) throw error;
