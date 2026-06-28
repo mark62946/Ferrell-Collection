@@ -113,7 +113,8 @@ const CollectionPage = {
     document.getElementById('col-table').innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
     try {
       const { data, count } = await Collection.getAll(this.page, this.pageSize, {
-        setId: this.filterSet || undefined
+        setId: this.filterSet || undefined,
+        player: this.filterPlayer || undefined
       });
 
       let filtered = data;
