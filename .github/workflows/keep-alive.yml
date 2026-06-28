@@ -2,7 +2,7 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    - cron: '0 12 * * 1'  # Every Monday at 12:00 UTC
+    - cron: '0 12 * * 6'  # Every Saturday at 12:00 UTC
   workflow_dispatch:       # Allows manual trigger from GitHub Actions tab
 
 jobs:
