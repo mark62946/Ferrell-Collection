@@ -326,4 +326,40 @@ const PARALLEL_OPTIONS = [
 
 "Holo Platinum Blue Triple Patch 1/1",
 
+"Blue /125",
+
+"Blue /40",
+
+"Blue /50",
+
+"Bronze",
+
+"Green /30",
+
+"Green /40",
+
+"Holo Gold",
+
+"Holo Platinum Blue 1/1",
+
+"Holo Silver /10",
+
+"Orange /60",
+
+"Pink /5",
+
+"Printing Plates 1/1",
+
+"Purple /50",
+
+"Purple /75",
+
+"Red /25",
+
+"Red /50",
+
+"Silver /75",
+
+"Silver /99",
+
 ];
