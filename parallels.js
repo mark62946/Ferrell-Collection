@@ -280,4 +280,38 @@ const PARALLEL_OPTIONS = [
 
 "Gold Rainbow Foil 1/1",
 
+"Silver Foil /75",
+
+"Purple Foil /50",
+
+"Blue Foil /40",
+
+"Green Foil /30",
+
+"Holo Gold Foil /15",
+
+"Holo Silver Foil /10",
+
+"Pink Foil /5",
+
+"Silver Foil /99",
+
+"Purple Foil /75",
+
+"Blue Foil /50",
+
+"Green Foil /40",
+
+"Blue Foil /125",
+
+"Green Foil /99",
+
+"Red Foil /50",
+
+"Red /25 or less",
+
+"Blue Foil /99 or less",
+
+"Green Foil /49 or less",
+
 ];
