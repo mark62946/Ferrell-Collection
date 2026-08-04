@@ -314,4 +314,16 @@ const PARALLEL_OPTIONS = [
 
 "Green Foil /49 or less",
 
+"Purple Foil /149 or less",
+
+"Blue Dual /99 or less",
+
+"Green Triple /49 or less",
+
+"Red Dual Patch /25 or less",
+
+"Holo Silver Buttons /10 or less",
+
+"Holo Platinum Blue Triple Patch 1/1",
+
 ];
