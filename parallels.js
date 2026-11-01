@@ -362,18 +362,30 @@ const PARALLEL_OPTIONS = [
 
 "Silver /99",
 
-	"Base ASG",
+"Base ASG",
 
-	"Green ASG",
+"Green ASG",
 
-	"Gold ASG",
+"Gold ASG",
 
-	"Orange ASG",
+"Orange ASG",
 
-	"Black ASG",
+"Black ASG",
 
-	"Red ASG",
+"Red ASG",
 
-	"Platinum ASG",
+"Platinum ASG",
+
+"Base Holiday (Orange Sun)",
+
+"Hot Dog /99",
+
+"Ice Cream /50",
+
+"Beach Umbrella /25",
+
+"Fireworks /5",
+
+"Waves 1/1",
 
 ];
