@@ -410,4 +410,418 @@ const PARALLEL_OPTIONS = [
 
 "Red Flare Refractor /5",
 
+  // ── Shared Parallel Options ──
+
+// Single source of truth — used by collection.js, checklist.js, wantlist.js
+
+const PARALLEL_OPTIONS = [
+
+"Gold Mirror",
+
+"Vintage Stock",
+
+"Clear (Hobby)",
+
+"True Photo",
+
+"Team Color Border",
+
+"Holiday (Tin)",
+
+"Apple Foil (Fanatics Fest)",
+
+"Player Number Variation",
+
+"1952 Variation",
+
+"Aqua Holo Foil",
+
+"Aqua Rainbow Foil",
+
+"Crackleboard Silver",
+
+"Diamante",
+
+"Diamante Pink",
+
+"Holo Foil",
+
+"Holo Foil Pink (Print Run of 800)",
+
+"Rainbow Foil",
+
+"Sandglitter",
+
+"Spring Training (Arizona)",
+
+"Spring Training (Florida)",
+
+"Topps Foil",
+
+"Confetti",
+
+"Opening Day Foil",
+
+"Pink Confetti",
+
+"Lime Green Confetti",
+
+"Gold /2026",
+
+"Yellow Holo Foil /399",
+
+"Yellow Rainbow Foil /399",
+
+"Purple Holo Foil /250",
+
+"Purple Rainbow Foil /250",
+
+"Blue Holo Foil /150",
+
+"Blue Rainbow Foil /150",
+
+"Cherry Blossom /99",
+
+"Green Diamante /99",
+
+"Green Holo Foil /99",
+
+"Green Rainbow Foil /99",
+
+"Green Spring Training /99",
+
+"Independence Day /76",
+
+"75 Years Of Topps /75",
+
+"Black Border /75",
+
+"Gold Diamante /50",
+
+"Gold Holo Foil /50",
+
+"Gold Rainbow Foil /50",
+
+"Gold Sandglitter /50",
+
+"Gold Spring Training /50",
+
+"Canvas /50",
+
+"Memorial Day Camo /25",
+
+"Orange Diamante /25",
+
+"Orange Holo Foil /25",
+
+"Orange Rainbow Foil /25",
+
+"Orange Sandglitter /25",
+
+"Orange Spring Training /25",
+
+"Wood /25",
+
+"Black Diamante /10",
+
+"Black Holo Foil /10",
+
+"Black Rainbow Foil /10",
+
+"Black Sandglitter /10",
+
+"Black Spring Training /10",
+
+"Red Diamante /5",
+
+"Red Holo Foil /5",
+
+"Red Rainbow Foil /5",
+
+"Red Sandglitter /5",
+
+"Red Spring Training /5",
+
+"First Card 1/1",
+
+"FoilFractor 1/1",
+
+"Rose Gold Holo Foil /1",
+
+"Rose Gold Spring Training /1",
+
+"Printing Plates /1",
+
+"Blue Foil /150",
+
+"Green Foil /99",
+
+"75th Anniversary /75",
+
+"Gold Foil /50",
+
+"Orange Foil /25",
+
+"Black Foil /10",
+
+"Red Foil /5",
+
+"Pink Foil",
+
+"Crackleboard Foil (Mega Box Exclusive)",
+
+"Green /99",
+
+"Gold /50",
+
+"Gold Crackleboard Foil /50 (Mega Box Exclusive)",
+
+"Orange /25",
+
+"Orange Crackleboard Foil /25 (Mega Box Exclusive)",
+
+"Black /10",
+
+"Black Crackleboard Foil /10 (Mega Box Exclusive)",
+
+"Red /5",
+
+"Rainbow Foilboard",
+
+"Blue /150",
+
+"Platinum /1",
+
+"Pink",
+
+"The Real One /91",
+
+"Base Confetti",
+
+"Opening Day",
+
+"Dugout Peeks",
+
+"Silver /5",
+
+"Gold 1/1",
+
+"Refractor /199",
+
+"Blue Refractor /150",
+
+"Green Refractor /99",
+
+"Purple Refractor /75",
+
+"Purple Mini-Diamond /75",
+
+"Purple Wave Refractor /75",
+
+"Gold Refractor /50",
+
+"Gold Mini Diamond /50",
+
+"Gold Wave Refractor /50",
+
+"Orange Refractor /25",
+
+"Orange Mini Diamond /25",
+
+"Orange Wave Refractor /25",
+
+"Rose Gold Refractor /10",
+
+"Rose Gold Mini Diamond /10",
+
+"Rose Gold Wave Refractor /10",
+
+"Red Refractor /5",
+
+"Red Mini Diamond /5",
+
+"Red Wave Refractor /5",
+
+"Superfractor 1/1",
+
+"Printing Plate Black 1/1",
+
+"Printing Plate Cyan 1/1",
+
+"Printing Plate Magenta 1/1",
+
+"Printing Plate Yellow 1/1",
+
+"Image Variation",
+
+"Short Print (SP)",
+
+"Custom / Other",
+
+"Purple Foil /299",
+
+"Fuchsia Foil /199",
+
+"Sparkle Foil /175",
+
+"Aqua Foil /75",
+
+"Red Foil /10",
+
+"Light Blue Foil",
+
+"Lime Green Foil",
+
+"Red Foil",
+
+"Bronze Foil",
+
+"Sepia Foil",
+
+"Black & White",
+
+"Members Only",
+
+"Photographer's Proof",
+
+"Green Foil /199",
+
+"Turquoise Foil /99",
+
+"Rainbow Foil /25",
+
+"Gold Rainbow Foil 1/1",
+
+"Silver Foil /75",
+
+"Purple Foil /50",
+
+"Blue Foil /40",
+
+"Green Foil /30",
+
+"Holo Gold Foil /15",
+
+"Holo Silver Foil /10",
+
+"Pink Foil /5",
+
+"Silver Foil /99",
+
+"Purple Foil /75",
+
+"Blue Foil /50",
+
+"Green Foil /40",
+
+"Blue Foil /125",
+
+"Green Foil /99",
+
+"Red Foil /50",
+
+"Red /25 or less",
+
+"Blue Foil /99 or less",
+
+"Green Foil /49 or less",
+
+"Purple Foil /149 or less",
+
+"Blue Dual /99 or less",
+
+"Green Triple /49 or less",
+
+"Red Dual Patch /25 or less",
+
+"Holo Silver Buttons /10 or less",
+
+"Holo Platinum Blue Triple Patch 1/1",
+
+"Blue /125",
+
+"Blue /40",
+
+"Blue /50",
+
+"Bronze",
+
+"Green /30",
+
+"Green /40",
+
+"Holo Gold",
+
+"Holo Platinum Blue 1/1",
+
+"Holo Silver /10",
+
+"Orange /60",
+
+"Pink /5",
+
+"Printing Plates 1/1",
+
+"Purple /50",
+
+"Purple /75",
+
+"Red /25",
+
+"Red /50",
+
+"Silver /75",
+
+"Silver /99",
+
+"Base ASG",
+
+"Green ASG",
+
+"Gold ASG",
+
+"Orange ASG",
+
+"Black ASG",
+
+"Red ASG",
+
+"Platinum ASG",
+
+"Base Holiday (Orange Sun)",
+
+"Hot Dog /99",
+
+"Ice Cream /50",
+
+"Beach Umbrella /25",
+
+"Fireworks /5",
+
+"Waves 1/1",
+
+"Refractor",
+
+"Nucleus Refractor",
+
+"White Hole Refractor",
+
+"Aqua Equinox Refractor /199",
+
+"Purple Nebula Refractor /150",
+
+"Blue Moon Refractor /99",
+
+"Green Space Dust Refractor /75",
+
+"Gold Interstellar Refractor /50",
+
+"Orange Galactic Refractor /25",
+
+"Black Eclipse Refractor /10",
+
+"Red Flare Refractor /5",
+
+"Lunar Eclipse Refractor /10",
+  
 ];
