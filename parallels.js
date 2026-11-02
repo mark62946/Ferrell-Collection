@@ -388,4 +388,26 @@ const PARALLEL_OPTIONS = [
 
 "Waves 1/1",
 
+"Refractor",
+
+"Nucleus Refractor",
+
+"White Hole Refractor",
+
+"Aqua Equinox Refractor /199",
+
+"Purple Nebula Refractor /150",
+
+"Blue Moon Refractor /99",
+
+"Green Space Dust Refractor /75",
+
+"Gold Interstellar Refractor /50",
+
+"Orange Galactic Refractor /25",
+
+"Black Eclipse Refractor /10",
+
+"Red Flare Refractor /5",
+
 ];
