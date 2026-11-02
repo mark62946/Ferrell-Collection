@@ -17,6 +17,14 @@ function setLastParallel(name) {
   } catch (e) { /* storage unavailable: just skip remembering */ }
 }
 
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // ── Checklist Bulk Entry Page ──
 const ChecklistPage = {
   sets: [],
@@ -168,6 +176,11 @@ const ChecklistPage = {
     // Progress bar
     html += '<div class="progress-bar" style="margin-bottom:12px"><div class="progress-fill" id="cl-prog-fill" style="width:' + pct + '%"></div></div>';
 
+    // Totals panel (base copies + each parallel)
+    html += '<div id="cl-stats" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px">';
+    html += this.renderStatsInner();
+    html += '</div>';
+
     // Section dropdown
     html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
     html += '<label style="font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap">Section:</label>';
@@ -219,6 +232,52 @@ const ChecklistPage = {
     html += '</div>';
 
     document.getElementById('cl-main').innerHTML = html;
+  },
+
+  // Effective state for a card: unsaved edits first, then saved data
+  getEffectiveState(card) {
+    const change = this.changes[card.id];
+    if (change !== undefined) return change;
+    const existing = this.colMap[card.id];
+    if (existing) {
+      return { owned: true, qty: existing.quantity || 1, parallels: existing.parallels || [] };
+    }
+    return { owned: false, qty: 1, parallels: [] };
+  },
+
+  computeStats() {
+    let baseQty = 0;
+    const parTotals = {};
+    this.cards.forEach(card => {
+      const st = this.getEffectiveState(card);
+      if (!st.owned) return;
+      baseQty += parseInt(st.qty) || 0;
+      (st.parallels || []).forEach(p => {
+        const name = p.parallel_name || 'Unnamed';
+        parTotals[name] = (parTotals[name] || 0) + (parseInt(p.quantity) || 1);
+      });
+    });
+    return { baseQty, parTotals };
+  },
+
+  renderStatsInner() {
+    const { baseQty, parTotals } = this.computeStats();
+    const entries = Object.entries(parTotals)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+    let html = '<div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">Totals</div>';
+    html += '<div style="font-size:13px;margin-bottom:8px">Base cards entered: <strong>' + baseQty + '</strong></div>';
+    if (entries.length) {
+      html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+      entries.forEach(([name, count]) => {
+        html += '<span style="font-size:12px;background:var(--purple-bg);color:var(--purple);border-radius:6px;padding:3px 8px">'
+          + escapeHtml(name) + ': <strong>' + count + '</strong></span>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div style="font-size:12px;color:var(--text3)">No parallels entered yet</div>';
+    }
+    return html;
   },
 
   tabId(name) {
@@ -423,6 +482,7 @@ const ChecklistPage = {
     const c = this.getOrInitChange(cardId);
     c.qty = Math.max(1, parseInt(val) || 1);
     c.owned = true;
+    this.refreshCounters();
   },
 
   toggleParPanel(cardId) {
@@ -450,6 +510,7 @@ const ChecklistPage = {
     if (c.parallels[idx]) {
       c.parallels[idx][field] = field === 'quantity' ? (parseInt(val) || 1) : val;
       if (field === 'parallel_name' && val) setLastParallel(val);
+      this.refreshCounters();
     }
   },
 
@@ -459,6 +520,7 @@ const ChecklistPage = {
     const item = document.getElementById('pi-' + cardId + '-' + idx);
     if (item) item.remove();
     this.refreshRow(cardId);
+    this.refreshCounters();
   },
 
   refreshRow(cardId) {
@@ -500,6 +562,10 @@ const ChecklistPage = {
     if (txt) txt.textContent = totalOwned + ' of ' + this.cards.length + ' cards owned (' + pct + '%)';
     const fill = document.getElementById('cl-prog-fill');
     if (fill) fill.style.width = pct + '%';
+
+    // Totals panel
+    const stats = document.getElementById('cl-stats');
+    if (stats) stats.innerHTML = this.renderStatsInner();
 
     // Update active section header and dropdown
     const activeSection = this.sections.find(s => s.name === this.activeSectionName);
