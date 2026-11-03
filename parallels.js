@@ -612,4 +612,56 @@ const PARALLEL_OPTIONS = [
 
 "Pristine Primaries Refractor /10",
 
+"Wave Refractor",
+
+"Lazer Refractor /350",
+
+"Mini-Diamond Refractor",
+
+"Mini-Diamond Refractor /299",
+
+"Mini-Diamond Refractor /25",
+
+"Mini-Diamond Refractor /10",
+
+"Purple Mojo Refractor /250",
+
+"Purple Lazer Refractor /250",
+
+"Aqua Lava Refractor /199",
+
+"Purple Refractor /250",
+
+"Blue X-Fractor /150",
+
+"Blue Lazer Refractor /150",
+
+"Green Mini-Diamond Refractor /99",
+
+"Yellow Lazer Refractor /75",
+
+"Yellow Refractor /75",
+
+"Gold Lava Refractor /50",
+
+"Black Refractor /10",
+
+"Red Lava Refractor /5",
+
+"Gold Mini-Diamond Refractor /50",
+
+"Orange X-Fractor /25",
+
+"Teal Refractor /15",
+
+"Black X-Fractor /10",
+
+"Red X-Fractor /5",
+
+"Lava Refractor /50",
+
+"Black 1/1",
+
+"Blue /75",
+
 ];
