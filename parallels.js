@@ -488,4 +488,92 @@ const PARALLEL_OPTIONS = [
 
 "MLB Silhouetted Batter 1/1",
 
+"Gold /249",
+
+"Pink Sapphire /199",
+
+"Sapphire /150",
+
+"Amethyst /99",
+
+"Ruby /75",
+
+"Bronze /35",
+
+"Blue Topaz /25",
+
+"Black Diamond /10",
+
+"Diamond /5",
+
+"Emerald 1/1",
+
+"Gold /149 or less",
+
+"Pink Sapphire /99 or less",
+
+"Amethyst /25 or less",
+
+"Ruby /20 or less",
+
+"Blue Topaz /15 or less",
+
+"Black /5 or less",
+
+"Bronze Frame /35 or less",
+
+"Silver Frame /25 or less",
+
+"Gold Frame /10 or less",
+
+"Black Frame /5 or less",
+
+"Wood Frame 1/1",
+
+"Silver Frame 1/1",
+
+"Gold /75 or less",
+
+"Pink Sapphire /50 or less",
+
+"Gold /10 or less",
+
+"Ruby /5 or less",
+
+"Gold /5 or less",
+
+"Gold /15 or less",
+
+"Amethyst /10 or less",
+
+"Copper /99 or less",
+
+"Pink Sapphire /75 or less",
+
+"Sapphire /25 or less",
+
+"Amethyst /20 or less",
+
+"Ruby /15 or less",
+
+"Black Diamond /10 or less",
+
+"Copper /75",
+
+"Gold /49",
+
+"Sapphire /25",
+
+"Amethyst /20",
+
+"Ruby /10",
+
+"Sapphire /35",
+
+"Amethyst /25",
+
+"Black Diamond /5",
+
+"Laundry Tag Relics 1/1",
+
 ];
