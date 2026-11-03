@@ -576,4 +576,40 @@ const PARALLEL_OPTIONS = [
 
 "Laundry Tag Relics 1/1",
 
+"Paint the Corners Refractor",
+
+"Aqua Refractor /199",
+
+"Green Refractor /150",
+
+"Purple Refractor /99",
+
+"Blue Refractor /75",
+
+"Pink Refractor /15",
+
+"Primaries Refractor /10",
+
+"Green Pristine Refractor /150",
+
+"Purple Pristine Refractor /99",
+
+"Blue Pristine Refractor /75",
+
+"Gold Pristine Refractor /50",
+
+"Orange Pristine Refractor /25",
+
+"Pink Pristine Refractor /15",
+
+"Primaries Pristine Refractor /10",
+
+"Red Pristine Refractor /5",
+
+"Black Pristine Refractor 1/1",
+
+"Pristine Refractor /99",
+
+"Pristine Primaries Refractor /10",
+
 ];
