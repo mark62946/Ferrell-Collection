@@ -664,4 +664,56 @@ const PARALLEL_OPTIONS = [
 
 "Blue /75",
 
+"X-Fractor",
+
+"Oil Spill Refractor",
+
+"Yellow Refractor /275",
+
+"Pink Refractor /250",
+
+"Green X-Fractor /99",
+
+"Purple X-Fractor /75",
+
+"Gold X-Fractor /50",
+
+"White Refractor /30",
+
+"White X-Fractor /30",
+
+"Molten Mercury Refractor /11",
+
+"Geometric Refractor",
+
+"Purple Geometric /75",
+
+"Gold Geometric /50",
+
+"Orange Geometric /25",
+
+"Black Geometric /10",
+
+"Red Geometric /5",
+
+"Tie-Dye Geometric /2",
+
+"Pink Mini-Diamond /250",
+
+"Aqua Mini-Diamond /199",
+
+"Blue Mini-Diamond /150",
+
+"Gold Mini-Diamond /50",
+
+"White Mini-Diamond /30",
+
+"Orange Mini-Diamond /25",
+
+"Black Mini-Diamond /10",
+
+"Red Mini-Diamond /5",
+
+"Sky Blue Refractor",
+
 ];
