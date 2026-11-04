@@ -716,4 +716,68 @@ const PARALLEL_OPTIONS = [
 
 "Sky Blue Refractor",
 
+"Topps Refractor /499",
+
+"Vibrations Refractor /250",
+
+"Blue Mini-Diamond Refractor /199",
+
+"Blue Vibrations Refractor /150",
+
+"Speckle Refractor /150",
+
+"Platinum Toile White/Green Refractor /99",
+
+"Green Wave Refractor /99",
+
+"Green Vibrations Refractor /99",
+
+"Rose Gold Refractor /75",
+
+"Platinum Toile Cream/Rose Gold Refractor /75",
+
+"Rose Gold Mini-Diamond Refractor /75",
+
+"Diamond Etch Refractor /55",
+
+"Platinum Toile Cream/Gold Refractor /50",
+
+"Gold Vibrations Refractor /50",
+
+"Platinum Toile White/Orange Refractor /25",
+
+"Orange Vibrations Refractor /25",
+
+"Platinum Toile Cream/Black Refractor /10",
+
+"Black Vibrations Refractor /10",
+
+"Platinum Toile Cream/Red Refractor /5",
+
+"Red Vibrations Refractor /5",
+
+"Platinum Toile Cream/Fuchsia Shimmer /100",
+
+"Gold Wave Refractor /50",
+
+"Orange Wave Refractor /25",
+
+"Prism Refractor",
+
+"Blue Prism Refractor",
+
+"Gold Prism Refractor",
+
+"Red Prism Refractor",
+
+"Blue Shimmer Refractor /100",
+
+"Aqua Refractor /150",
+
+"Platinum Toile Cream/Blue Refractor /99",
+
+"Blue Prism Refractor /99",
+
+"Green Mini-Diamond Refractor /75",
+
 ];
