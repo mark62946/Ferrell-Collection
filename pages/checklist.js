@@ -17,6 +17,41 @@ function setLastParallel(name) {
   } catch (e) { /* storage unavailable: just skip remembering */ }
 }
 
+// ── Parallel dropdown ordering ──
+let _alphaParallelsCache = null;
+
+// Alphabetical copy of PARALLEL_OPTIONS (built once)
+function alphaParallels() {
+  if (!_alphaParallelsCache) {
+    _alphaParallelsCache = PARALLEL_OPTIONS.slice().sort(compareAlpha);
+  }
+  return _alphaParallelsCache;
+}
+
+function compareAlpha(a, b) {
+  return String(a).localeCompare(String(b), undefined, { sensitivity: 'base' });
+}
+
+// Print run from a name: "/299" -> 299, "1/1" -> 1, no run -> null
+function parallelPrintRun(name) {
+  const s = String(name);
+  let m = s.match(/\/\s*([\d,]+)/);
+  if (m) return parseInt(m[1].replace(/,/g, ''), 10);
+  m = s.match(/(\d+)\/1\s*$/);
+  if (m) return parseInt(m[1], 10);
+  return null;
+}
+
+// No run first, then highest run to lowest, then alphabetical
+function compareByRun(a, b) {
+  const ra = parallelPrintRun(a);
+  const rb = parallelPrintRun(b);
+  const va = ra === null ? Infinity : ra;
+  const vb = rb === null ? Infinity : rb;
+  if (va !== vb) return va === Infinity ? -1 : vb === Infinity ? 1 : vb - va;
+  return compareAlpha(a, b);
+}
+
 function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;')
@@ -345,7 +380,7 @@ const ChecklistPage = {
     var inputId = 'psi-' + cardId + '-' + idx;
     var listId = 'psl-' + cardId + '-' + idx;
     var escapedName = (p.parallel_name || '').replace(/"/g, '&quot;');
-    var listItems = PARALLEL_OPTIONS.map(function(o) {
+    var listItems = alphaParallels().map(function(o) {
       var esc = o.replace(/"/g, '&quot;');
       return '<div class="par-opt"'
         + ' data-val="' + esc + '"'
@@ -381,11 +416,17 @@ const ChecklistPage = {
 
 
   filterParList(inputId, listId) {
-    var q = (document.getElementById(inputId).value || '').toLowerCase();
+    var q = (document.getElementById(inputId).value || '').trim().toLowerCase();
     var list = document.getElementById(listId);
     if (!list) return;
     list.style.display = 'block';
-    Array.from(list.children).forEach(function(item) {
+    var items = Array.from(list.children);
+    // Typing: highest print run first (no run first). Empty: alphabetical.
+    items.sort(function(a, b) {
+      return q ? compareByRun(a.textContent, b.textContent) : compareAlpha(a.textContent, b.textContent);
+    });
+    items.forEach(function(item) {
+      list.appendChild(item);
       item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
     });
   },
