@@ -780,4 +780,82 @@ const PARALLEL_OPTIONS = [
 
 "Green Mini-Diamond Refractor /75",
 
+"Negative Refractor",
+
+"75th Anniversary Refractor /75",
+
+"FrozenFractor -5/0",
+
+"Blue Wave Refractor /150",
+
+"Black Wave Refractor /10",
+
+"Green Geometric Refractor /99",
+
+"Purple Geometric Refractor /75",
+
+"Gold Geometric Refractor /50",
+
+"Orange Geometric Refractor /25",
+
+"Black Geometric Refractor /10",
+
+"Red Geometric Refractor /5",
+
+"Tie-Dye Geometric Refractor /2",
+
+"Baseball Seams Refractor",
+
+"RayWave Refractor",
+
+"Red White and Blue Refractor",
+
+"Aqua RayWave Refractor /199",
+
+"Blue RayWave Refractor /150",
+
+"Green RayWave Refractor /99",
+
+"Purple RayWave Refractor /75",
+
+"Gold RayWave Refractor /50",
+
+"Orange RayWave Refractor /25",
+
+"Black RayWave Refractor /10",
+
+"Red RayWave Refractor /5",
+
+"Aqua X-Fractor /199",
+
+"Topps Refractor",
+
+"Blue Topps Refractor",
+
+"Lightboard Logo",
+
+"Teal Refractor /299",
+
+"Refractor /499",
+
+"Pink LogoFractor /250",
+
+"Blue LogoFractor /150",
+
+"Green LogoFractor /99",
+
+"Purple LogoFractor /75",
+
+"Gold LogoFractor /50",
+
+"Orange LogoFractor /25",
+
+"Black LogoFractor /10",
+
+"Red LogoFractor /5",
+
+"Rose Gold LogoFractor 1/1",
+
+"White LogoFractor /30",
+
 ];
