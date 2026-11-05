@@ -858,4 +858,6 @@ const PARALLEL_OPTIONS = [
 
 "White LogoFractor /30",
 
+"Base LogoFractor",
+
 ];
