@@ -860,4 +860,8 @@ const PARALLEL_OPTIONS = [
 
 "Base LogoFractor",
 
+"Unnumbered",
+
+"Aqua /199",
+
 ];
