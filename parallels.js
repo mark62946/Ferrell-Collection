@@ -862,6 +862,24 @@ const PARALLEL_OPTIONS = [
 
 "Unnumbered",
 
+"Red /175",
+
+"Blue /99",
+
+"Purple /49",
+
+"Holo Silver /25",
+
+"Holo Gold /10",
+
+"Emerald /5",
+
+"Red /75 or /49",
+
+"Red /49",
+
+"Gold /10",    
+
 "Aqua /199",
 
 ];
