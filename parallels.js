@@ -880,6 +880,8 @@ const PARALLEL_OPTIONS = [
 
 "Gold /10",    
 
+"Base /99",   
+
 "Aqua /199",
 
 ];
