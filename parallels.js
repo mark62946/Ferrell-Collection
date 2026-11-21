@@ -942,6 +942,21 @@ const PARALLEL_OPTIONS = [
 "Green Lava Refractor /99",
 "Blue RayWave Refractor /150",
 
+"Fuchsia Mojo Refractor /299",
+"Purple Mojo Refractor /250",
+"Pink Mojo Refractor /199",
+"Blue Mojo Refractor /150",
+"Aqua Mojo Refractor /125",
+"Steel Metal Refractor /100",
+"Green Mojo Refractor /99",
+"Yellow Mojo Refractor /75",
+"Gold Mojo Refractor /50",
+"Orange Mojo Refractor /25",
+"Black & White Mojo Refractor /15",
+"Red Mojo Refractor /5",
+"Rose Gold Mojo Refractor 1/1",
+"Black Mojo Refractor /10",
+
 "Aqua /199",
 
 ];
