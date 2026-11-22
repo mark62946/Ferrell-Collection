@@ -990,4 +990,50 @@ const PARALLEL_OPTIONS = [
 
 "Aqua /199",
 
+ "Sky Blue Border /499",
+
+"Blue Border /150",
+
+"Green Border /99",
+
+"Gold Border /50",
+
+"Orange Border /25",
+
+"Red Border /5",
+
+"Black Border 1/1",
+
+"Sparkle Refractor",
+
+"Fuchsia Reptilian Refractor /199",
+
+"Aqua Wave Refractor /125",
+
+"Aqua Reptilian Refractor /125",
+
+"Green Grass Refractor /99",
+
+"Green Reptilian Refractor /99",
+
+"Yellow Reptilian Refractor /75",
+
+"Bowman LogoFractor /35",
+
+"Sparkle Refractor /71",
+
+"HTA Choice Refractor /150",
+
+"Gold Shimmer Refractor /25",
+
+"Peanuts Refractor /5",
+
+"Popcorn Refractor /5",
+
+"Sunflower Seeds Refractor /5",
+
+"Lava/Wave Refractor /75",
+
+"Refractor /250", 
+
 ];
