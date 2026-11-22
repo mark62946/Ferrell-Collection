@@ -1036,4 +1036,94 @@ const PARALLEL_OPTIONS = [
 
 "Refractor /250", 
 
+"Neon Green Border /399",
+
+"Fuchsia Border /299",
+
+"Purple Border /250",
+
+"Purple Pattern Border /199",
+
+"Pink Border /175",
+
+"Blue Pattern Border /125",
+
+"Green Pattern Border /99",
+
+"Bowman Retro Logo Foil Pattern",
+
+"Yellow Border /75",
+
+"Yellow Pattern Border /75",
+
+"Black Border /10",
+
+"Black Pattern Border /10",
+
+"Platinum Border 1/1",
+
+"Pearl Refractor",
+
+"Lava Refractor /399",
+
+"Wave Refractor /350",
+
+"Purple Raywave /250",
+
+"Fuchsia Refractor /199",
+
+"Reptilian Fuchsia Refractor /199",
+
+"Fuchsia Wave Refractor /199",
+
+"Blue Shimmer /150",
+
+"Blue Raywave /150",
+
+"Aqua X-Fractor /125",
+
+"Aqua Shimmer /125",
+
+"Steel Metal /100",
+
+"Green Shimmer /99",
+
+"Yellow X-Fractor /75",
+
+"Gold Shimmer /50",
+
+"Orange Shimmer /25",
+
+"Rose Gold Refractor /15",
+
+"Rose Gold Mini Diamond /15",
+
+"Reptilian Red Refractor",
+
+"FireFractor",
+
+"Purple Geometric /250",
+
+"Blue Geometric /150",
+
+"Green Geometric /99",
+
+"Yellow Geometric /75",
+
+"Pearl Refractor /10",
+
+"Gum Ball Refractor /5",
+
+"Red X-Fractor Refractor /5",
+
+"Red Ink",
+
+"Refractor /5",
+
+"Citrine Orange /10",
+
+"Alexandrite Blue /5",
+
+"Painite Red 1/1",
+
 ];
