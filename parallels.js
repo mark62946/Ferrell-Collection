@@ -1130,4 +1130,8 @@ const PARALLEL_OPTIONS = [
 
 "HTA Choice /150",
 
+"Aqua Mojo Refractor /299",
+
+"Steel Metal Mojo Refractor /100",
+
 ];
