@@ -1126,4 +1126,8 @@ const PARALLEL_OPTIONS = [
 
 "Painite Red 1/1",
 
+"Fuchsia Geometric Refractor /199",
+
+"HTA Choice /150",
+
 ];
