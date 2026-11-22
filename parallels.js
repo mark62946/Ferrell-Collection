@@ -956,7 +956,7 @@ const PARALLEL_OPTIONS = [
 "Red Mojo Refractor /5",
 "Rose Gold Mojo Refractor 1/1",
 "Black Mojo Refractor /10",
-
+"Mojo Refractor",
 "Aqua /199",
 
 ];
