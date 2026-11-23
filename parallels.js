@@ -1134,4 +1134,42 @@ const PARALLEL_OPTIONS = [
 
 "Steel Metal Mojo Refractor /100",
 
+"Bowman Logo Pattern",
+
+"Purple Pattern /250",
+
+"Blue Pattern /150",
+
+"Green Border Pattern /99",
+
+"Yellow Pattern /75",
+
+"Gold Border Pattern /50",
+
+"Orange Border Pattern /25",
+
+"Black Border /25",
+
+"Black Border Pattern /25",
+
+"Reptilian Refractor",
+
+"Bowman LogoFractor",
+
+"Purple RayWave Refractor /250",
+
+"Fuchsia Wave /199",
+
+"Blue Shimmer Refractor /150",
+
+"Aqua X-Fractor Refractor /125",
+
+"Aqua Shimmer Refractor /125",
+
+"Yellow Wave /75",
+
+"Rose Gold X-Fractor /15",
+
+"FireFractor /3",
+
 ];
