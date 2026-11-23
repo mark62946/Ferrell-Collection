@@ -1172,4 +1172,16 @@ const PARALLEL_OPTIONS = [
 
 "FireFractor /3",
 
+ "Sky Blue Mojo Refractor /499",
+
+"Neon Green Mojo Refractor /399",
+
+"Burgundy Mojo Refractor /275",
+
+"Navy Mojo Refractor /175",
+
+"Fuchsia Mojo Refractor",
+
+"Rose Gold 1/1",
+
 ];
